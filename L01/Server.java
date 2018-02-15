@@ -5,10 +5,14 @@ import java.util.HashMap;
 
 public class Server {
     public static void main(String[] args) throws IOException {
+        if(args.length != 1) {
+            System.out.println("Usage; java Server <port_number>");
+            return;
+        }
         HashMap<String, String> database = new HashMap<>();
-        DatagramSocket socket = new DatagramSocket(4445);
+        DatagramSocket socket = new DatagramSocket(Integer.valueOf(args[0]));
 
-        int counter = 20;
+        int counter = 20; //Change value to alter amount of requests read
         while(counter > 0) {
             //receive request
             byte[] rbuf = new byte[65535];
@@ -21,21 +25,24 @@ public class Server {
 
             String[] requestArgs = request.split(":");
 
-            String response = "-1";
+            String response = "";
             switch(requestArgs[0]) {
                 case "register":
-                    System.out.println("Registering " + requestArgs[1] + " " + requestArgs[2]);
-                    database.put(requestArgs[1], requestArgs[2]);
-                    response = database.size() + " " + requestArgs[1] + " " + requestArgs[2];
+                    if(!database.containsKey(requestArgs[1])) {
+                      database.put(requestArgs[1], requestArgs[2]);
+                      response = String.valueOf(database.size());
+                    }
+                    else
+                      response = "-1";
                     break;
                 case "lookup":
-                    String lookupResult = database.get(requestArgs[1]);
-                    if(lookupResult != null) {
-                        System.out.println("Found: " + lookupResult);
-                        response = database.size() + " " + requestArgs[1] + " " + lookupResult;
-                    }
-                    break;
+                  if(database.containsKey(requestArgs[1]))
+                    response = database.get(requestArgs[1]);
+                  else
+                    response = "NOT_FOUND";
+                  break;
                 default:
+                  break;
             }
 
             // send response
