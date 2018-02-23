@@ -35,8 +35,6 @@ public class Server {
 
         // create multicast sender task
         Timer multicastTimer = new Timer();
-        MulticastTask multicastTask = new MulticastTask();
-
         multicastTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -46,7 +44,7 @@ public class Server {
                     server.multicastSocket.send(server.multicastPacket);
                     server.multicastSocket.setTimeToLive(ttl);
                 } catch (IOException e) {
-
+                  e.printStackTrace();
                 }
             }
         }, 0, 1000);
@@ -59,7 +57,9 @@ public class Server {
             //receive request
             byte[] rbuf = new byte[65535];
             DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
+            System.out.println("Receiving packet...");
             socket.receive(packet);
+            System.out.println("Got packet");
 
             // display request
             String request = new String(packet.getData()).trim();
@@ -94,17 +94,5 @@ public class Server {
 
         System.out.println("Server closing...");
         socket.close();
-    }
-
-    private static class MulticastTask extends TimerTask {
-
-        public MulticastTask() {
-            super();
-        }
-
-        @Override
-        public void run() {
-
-        }
     }
 }

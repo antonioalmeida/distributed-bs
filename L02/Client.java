@@ -6,8 +6,8 @@ import java.net.MulticastSocket;
 
 public class Client {
     public static void main(String[] args) throws IOException {
-        if(args.length  < 2) {
-            System.out.println("Usage; java Client <hostname> <string>");
+        if(args.length  < 4) {
+            System.out.println("Usage; java Client <mcast addr> <mcast port> <oper> <oper args>*");
             return;
         }
 
@@ -26,24 +26,27 @@ public class Client {
         byte[] mbuf = new byte[65535];
         DatagramPacket multicastPacket = new DatagramPacket(mbuf, mbuf.length);
         multicastSocket.receive(multicastPacket);
+        multicastSocket.close();
 
         //parse service info
         String multicastReceived = new String(multicastPacket.getData());
         System.out.println("Received: " + multicastReceived);
+        String[] split = multicastReceived.split(":");
+        String address = split[0];
 
-        /*
         // create request message
         DatagramSocket socket = new DatagramSocket();
         String buf = new String();
-        for(int i = 1; i < args.length; ++i) {
+        for(int i = 2; i < args.length; ++i) {
             buf += args[i];
             if(i < args.length - 1)
                 buf += ":";
         }
         byte[] sbuf = buf.getBytes();
-        InetAddress address = InetAddress.getByName(args[0]);
-        DatagramPacket packet = new DatagramPacket(sbuf, sbuf.length, address, 4445);
+        DatagramPacket packet = new DatagramPacket(sbuf, sbuf.length, InetAddress.getByName(address), 4445);
+        System.out.println("Sending packet...");
         socket.send(packet);
+        System.out.println("Sent");
 
         // get response
         byte[] rbuf = new byte[65535];
@@ -53,6 +56,5 @@ public class Client {
         String received = new String(packet.getData());
         System.out.println("Echoed Message: " + received);
         socket.close();
-        */
     }
 }
