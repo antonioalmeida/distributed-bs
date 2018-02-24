@@ -29,10 +29,9 @@ public class Client {
         multicastSocket.close();
 
         //parse service info
-        String multicastReceived = new String(multicastPacket.getData());
+        String multicastReceived = new String(multicastPacket.getData()).trim();
         System.out.println("Received: " + multicastReceived);
         String[] split = multicastReceived.split(":");
-        String address = split[0];
 
         // create request message
         DatagramSocket socket = new DatagramSocket();
@@ -43,7 +42,7 @@ public class Client {
                 buf += ":";
         }
         byte[] sbuf = buf.getBytes();
-        DatagramPacket packet = new DatagramPacket(sbuf, sbuf.length, InetAddress.getByName(address), 4445);
+        DatagramPacket packet = new DatagramPacket(sbuf, sbuf.length, InetAddress.getByName(split[0]), Integer.valueOf(split[1]));
         System.out.println("Sending packet...");
         socket.send(packet);
         System.out.println("Sent");
