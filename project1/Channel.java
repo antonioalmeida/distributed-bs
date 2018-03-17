@@ -13,12 +13,15 @@ public class Channel {
 
     private MulticastSocket socket;
 
-    public Channel(String address, int port) throws IOException {
+    public Channel(String address, int port, boolean subscribe) throws IOException {
         // create multicast socket
         this.socket = new MulticastSocket(port);
+        this.socket.setTimeToLive(1);
 
-        //join multicast group
-        this.address = InetAddress.getByName((address));
-        socket.joinGroup(this.address);
+        if(subscribe) {
+            //join multicast group
+            this.address = InetAddress.getByName((address));
+            socket.joinGroup(this.address);
+        }
     }
 }

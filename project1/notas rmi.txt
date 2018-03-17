@@ -1,15 +1,15 @@
 RMI
 
-1ª fazer interface RemoteService extends java.rmi.Remote, lança exceção RemoteException através da qual o cliente é notificado dafalha de comunicação.
+1ª fazer interface rmi.RemoteService extends java.rmi.Remote, lança exceção RemoteException através da qual o cliente é notificado dafalha de comunicação.
 
 2ª fazer classes que implementem a interface acima
-	ex: class _____ implements RemoteService {
+	ex: class _____ implements rmi.RemoteService {
 		backup(); restore(); etc
 	} 
 
 Servidor
 1 - criar objeto remoto via construtor
-2 - "exportar" objeto -> através de exportObject() de classe UnicastRemoteObject, que retorna uma referência para um objeto da interface criada antes (fazer cast para RemoteService)
+2 - "exportar" objeto -> através de exportObject() de classe UnicastRemoteObject, que retorna uma referência para um objeto da interface criada antes (fazer cast para rmi.RemoteService)
 3 - registar objeto no RMIRegistry
 	- obter referencia do RMIRegistry - usar LocateRegistry.getRegistry()
 	- registar o objeto - usar reg.(re)bind("nome", ref). Ref é a referência obtida no passo 2. Tudo o que é passado por rmi tem que ser SERIALIZABLE
