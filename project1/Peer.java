@@ -1,3 +1,7 @@
+import channel.BackupChannel;
+import channel.Channel;
+import channel.ControlChannel;
+import channel.RestoreChannel;
 import rmi.RemoteStub;
 
 import java.io.IOException;
@@ -31,10 +35,15 @@ public class Peer extends RemoteStub {
         this.rmiAccessPoint = args[2];
         this.initRemoteStub(rmiAccessPoint);
 
-        // "all peers must subscribe the MC channel"
-        this.MC = new Channel(args[3], Integer.parseInt(args[4]), true);
-        this.MDB = new Channel(args[5], Integer.parseInt(args[6]), false);
-        this.MDR = new Channel(args[7], Integer.parseInt(args[8]), false);
+        // subscribe to multicast channels
+        this.MC = new ControlChannel(args[3], Integer.parseInt(args[4]));
+        this.MC.run();
+
+        this.MDB = new BackupChannel(args[5], Integer.parseInt(args[6]));
+        this.MDB.run();
+
+        this.MDR = new RestoreChannel(args[7], Integer.parseInt(args[8]));
+        this.MDR.run();
     }
 
     private static boolean checkArgs(final String args[]) {
