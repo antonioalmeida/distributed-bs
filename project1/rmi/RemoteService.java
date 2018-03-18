@@ -9,4 +9,6 @@ import java.rmi.RemoteException;
 public interface RemoteService extends Remote {
     // not sure what to add here yet
     String test() throws RemoteException;
+
+    void backupFile(String filePath, int replicationDegree) throws RemoteException;
 }

@@ -53,10 +53,14 @@ public abstract class Channel implements Runnable {
 
     public void parseMessage(DatagramPacket packet) {
         String request = new String(packet.getData()).trim();
-
-
+        Message.parseString(request);
     }
 
     public abstract void sendSampleMessage() throws IOException;
+
+    public void sendMessage(String message) throws IOException {
+        byte[] rbuf = message.getBytes();
+        this.socket.send(new DatagramPacket(rbuf, rbuf.length, address, port));
+    }
 
 }

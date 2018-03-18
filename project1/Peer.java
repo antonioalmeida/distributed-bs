@@ -1,10 +1,8 @@
-import channel.BackupChannel;
-import channel.Channel;
-import channel.ControlChannel;
-import channel.RestoreChannel;
+import channel.*;
 import rmi.RemoteService;
 
 import java.io.IOException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -81,5 +79,15 @@ public class Peer implements RemoteService {
     public String test() throws RemoteException {
         System.out.println("Testing RMI");
         return "Testing RMI";
+    }
+
+    @Override
+    public void backupFile(String filePath, int replicationDegree) throws RemoteException{
+        String header = "PUTCHUNK 1.0 " + this.peerID + " FileID 1 1 " + Message.CRLF + Message.CRLF;
+        try {
+            MDB.sendMessage(header);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
