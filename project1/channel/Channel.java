@@ -41,17 +41,20 @@ public abstract class Channel implements Runnable {
             DatagramPacket multicastPacket = new DatagramPacket(mbuf, mbuf.length);
 
             try {
+                //TODO: ignore messages sent by itself
                 this.socket.receive(multicastPacket);
-
-                //sample parse received message
-                String multicastReceived = new String(multicastPacket.getData()).trim();
-                System.out.println("Received: " + multicastReceived);
-                count++;
+                parseMessage(multicastPacket);
             } catch (IOException e) {
                 System.out.println("Error receiving multicast message");
                 e.printStackTrace();
             }
         }
+    }
+
+    public void parseMessage(DatagramPacket packet) {
+        String request = new String(packet.getData()).trim();
+
+
     }
 
     public abstract void sendSampleMessage() throws IOException;
