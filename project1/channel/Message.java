@@ -28,7 +28,12 @@ public class Message {
     private int replicationDegree;
 
     public static Message parseString(String message) {
+        String[] arr = message.split("\\s+");
         //TODO: parse string and return Message object
+
+        for(String part : arr)
+            System.out.println("Part: " + part);
+
         return new Message();
     }
 

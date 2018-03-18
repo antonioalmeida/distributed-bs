@@ -2,14 +2,18 @@ import channel.BackupChannel;
 import channel.Channel;
 import channel.ControlChannel;
 import channel.RestoreChannel;
-import rmi.RemoteStub;
+import rmi.RemoteService;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
 /**
  * Created by antonioalmeida on 17/03/2018.
  */
-public class Peer extends RemoteStub {
+public class Peer implements RemoteService {
     private int peerID;
 
     private String rmiAccessPoint;
@@ -56,5 +60,26 @@ public class Peer extends RemoteStub {
         //TODO: add thorough usage information
         System.out.println("Usage:");
         System.out.println("Java Peer : <protocol version> <server id> <service access point> <MC address> <MC port> <MDB address> <MDB port> <MDR address> <MDR port>");
+    }
+
+    protected void initRemoteStub(String accessPoint) {
+        try {
+            RemoteService stub = (RemoteService) UnicastRemoteObject.exportObject(this, 0);
+
+            // Bind the remote object's stub in the registry
+            Registry registry = LocateRegistry.getRegistry();
+            registry.rebind(accessPoint, stub);
+
+            System.err.println("Server ready");
+        } catch (Exception e) {
+            System.err.println("Server exception: " + e.toString());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String test() throws RemoteException {
+        System.out.println("Testing RMI");
+        return "Testing RMI";
     }
 }
