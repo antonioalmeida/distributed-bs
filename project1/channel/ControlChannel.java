@@ -1,6 +1,8 @@
 package channel;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
 
 /**
  * Created by antonioalmeida on 17/03/2018.
@@ -11,7 +13,11 @@ public class ControlChannel extends Channel {
     }
 
     @Override
-    public void run() {
-        super.run();
+    public void sendSampleMessage() throws IOException {
+                //create multicast message
+                String buf = "Sample MULTICAST message";
+                byte[] rbuf = buf.getBytes();
+
+                this.socket.send(new DatagramPacket(rbuf, rbuf.length, address, port));
     }
 }

@@ -12,4 +12,8 @@ public class BackupChannel extends Channel {
         super(address, port);
     }
 
+    @Override
+    public void sendSampleMessage() throws IOException {
+
+    }
 }

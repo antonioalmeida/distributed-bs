@@ -37,13 +37,12 @@ public class Peer extends RemoteStub {
 
         // subscribe to multicast channels
         this.MC = new ControlChannel(args[3], Integer.parseInt(args[4]));
-        this.MC.run();
-
         this.MDB = new BackupChannel(args[5], Integer.parseInt(args[6]));
-        this.MDB.run();
-
         this.MDR = new RestoreChannel(args[7], Integer.parseInt(args[8]));
-        this.MDR.run();
+
+        new Thread(MC).start();
+        new Thread(MDB).start();
+        new Thread(MDR).start();
     }
 
     private static boolean checkArgs(final String args[]) {

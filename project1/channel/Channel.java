@@ -8,7 +8,7 @@ import java.net.MulticastSocket;
 /**
  * Created by antonioalmeida on 07/03/2018.
  */
-public abstract class Channel extends Thread {
+public abstract class Channel implements Runnable {
 
     // Multicast channel is defined by its address and port
     protected InetAddress address;
@@ -21,9 +21,13 @@ public abstract class Channel extends Thread {
         this.socket = new MulticastSocket(port);
         this.socket.setTimeToLive(1);
 
+        this.address = InetAddress.getByName(address);
+        this.port = port;
+
         //join multicast group
-        this.address = InetAddress.getByName((address));
         socket.joinGroup(this.address);
+
+        System.out.println("Joined Multicast Channel " + address + ":" + port);
     }
 
     @Override
@@ -49,4 +53,7 @@ public abstract class Channel extends Thread {
             }
         }
     }
+
+    public abstract void sendSampleMessage() throws IOException;
+
 }
