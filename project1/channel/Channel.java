@@ -43,7 +43,6 @@ public abstract class Channel implements Runnable {
             try {
                 //TODO: ignore messages sent by itself
                 this.socket.receive(multicastPacket);
-                parseMessage(multicastPacket);
             } catch (IOException e) {
                 System.out.println("Error receiving multicast message");
                 e.printStackTrace();
@@ -53,7 +52,6 @@ public abstract class Channel implements Runnable {
 
     public void parseMessage(DatagramPacket packet) {
         String request = new String(packet.getData()).trim();
-        Message.parseString(request);
     }
 
     public abstract void sendSampleMessage() throws IOException;
