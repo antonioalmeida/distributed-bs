@@ -12,8 +12,8 @@ enum MessageType {
     }
 
 public class Message {
-    // CR - 13 | LF - 10
-    public static String CRLF = Character.toString((char) 13) + Character.toString((char) 10);
+    public static String CR = Character.toString((char) 13);
+    public static String LF = Character.toString((char) 10);
 
     private MessageType type;
 
@@ -38,5 +38,3 @@ public class Message {
     }
 
 }
-
-
