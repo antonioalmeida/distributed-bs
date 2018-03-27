@@ -16,13 +16,17 @@ public abstract class Receiver implements Runnable {
 
     protected MulticastSocket socket;
 
-    public Receiver(String address, int port) throws IOException {
+    protected Dispatcher dispatcher;
+
+    public Receiver(String address, int port, Dispatcher dispatcher) throws IOException {
         // create multicast socket
         this.socket = new MulticastSocket(port);
         this.socket.setTimeToLive(1);
 
         this.address = InetAddress.getByName(address);
         this.port = port;
+
+        this.dispatcher = dispatcher;
 
         //join multicast group
         socket.joinGroup(this.address);
@@ -43,6 +47,8 @@ public abstract class Receiver implements Runnable {
             try {
                 //TODO: ignore messages sent by itself
                 this.socket.receive(multicastPacket);
+                this.dispatcher.handleMessage(multicastPacket.getData());
+
             } catch (IOException e) {
                 System.out.println("Error receiving multicast message");
                 e.printStackTrace();

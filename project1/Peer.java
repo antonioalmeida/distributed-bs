@@ -1,10 +1,7 @@
 import channel.*;
 import protocol.BackupInitiator;
 import protocol.ProtocolInitiator;
-import receiver.BackupReceiver;
-import receiver.ControlReceiver;
-import receiver.Receiver;
-import receiver.RestoreReceiver;
+import receiver.*;
 import rmi.RemoteService;
 
 import java.io.IOException;
@@ -29,6 +26,8 @@ public class Peer implements RemoteService {
     private Channel MDB;
     private Channel MDR;
 
+    private Dispatcher dispatcher;
+
     // Peer args
     //<protocol version> <server id> <service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> <MDBReceiver port> <MDRReceiver address> <MDRReceiver port>
     public static void main(final String args[]) throws IOException {
@@ -46,14 +45,17 @@ public class Peer implements RemoteService {
         this.rmiAccessPoint = args[2];
         this.initRemoteStub(rmiAccessPoint);
 
+        this.dispatcher = new Dispatcher();
+
         // subscribe to multicast channels
-        this.MCReceiver = new ControlReceiver(args[3], Integer.parseInt(args[4]));
-        this.MDBReceiver = new BackupReceiver(args[5], Integer.parseInt(args[6]));
-        this.MDRReceiver = new RestoreReceiver(args[7], Integer.parseInt(args[8]));
+        this.MCReceiver = new ControlReceiver(args[3], Integer.parseInt(args[4]), dispatcher);
+        this.MDBReceiver = new BackupReceiver(args[5], Integer.parseInt(args[6]), dispatcher);
+        this.MDRReceiver = new RestoreReceiver(args[7], Integer.parseInt(args[8]), dispatcher);
 
         this.MC = new Channel(args[3], Integer.parseInt(args[4]));
         this.MDB = new Channel(args[5], Integer.parseInt(args[6]));
         this.MDR = new Channel(args[7], Integer.parseInt(args[8]));
+
 
         new Thread(MCReceiver).start();
         new Thread(MDBReceiver).start();
@@ -96,9 +98,7 @@ public class Peer implements RemoteService {
 
     @Override
     public void backupFile(String filePath, int replicationDegree) throws RemoteException{
-
         ProtocolInitiator backupInstance = new BackupInitiator(filePath, replicationDegree, peerID, MDB);
-
         new Thread(backupInstance).start();
     }
 }

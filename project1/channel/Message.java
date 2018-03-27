@@ -66,7 +66,6 @@ public class Message {
     public Message(byte[] message) {
       int headerLength = 0;
       for (int i = 0; i < message.length; ++i) {
-            System.out.println("Char: "+(char)message[i]);
             if((char)message[i] == '\r') { //TODO: Parse better
               headerLength = i+1;
               break;
@@ -128,8 +127,6 @@ public class Message {
       result.append(Message.CRLF+Message.CRLF);
 
       String header = result.toString();
-      System.out.println(header);
-
       byte[] headerArr = header.getBytes();
       byte[] packet = new byte[headerArr.length+this.body.length];
       System.arraycopy(headerArr, 0, packet, 0, headerArr.length);

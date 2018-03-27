@@ -7,8 +7,8 @@ import java.io.IOException;
  */
 public class BackupReceiver extends Receiver {
 
-    public BackupReceiver(String address, int port) throws IOException {
-        super(address, port);
+    public BackupReceiver(String address, int port, Dispatcher dispatcher) throws IOException {
+        super(address, port, dispatcher);
     }
 
     @Override
