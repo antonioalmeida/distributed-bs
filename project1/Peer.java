@@ -45,7 +45,7 @@ public class Peer implements RemoteService {
         this.rmiAccessPoint = args[2];
         this.initRemoteStub(rmiAccessPoint);
 
-        this.dispatcher = new Dispatcher();
+        this.dispatcher = new Dispatcher(this);
 
         // subscribe to multicast channels
         this.MCReceiver = new ControlReceiver(args[3], Integer.parseInt(args[4]), dispatcher);

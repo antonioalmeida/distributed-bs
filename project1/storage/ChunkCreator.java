@@ -30,7 +30,6 @@ public class ChunkCreator {
         this.fileID = Utils.getFileID(file);
 
         initChunkList(file);
-
         createChunks(file);
     }
 
@@ -42,15 +41,17 @@ public class ChunkCreator {
     }
 
     private void createChunks(File file) {
-
         try {
-            FileInputStream fis = new FileInputStream(file);
+            FileInputStream filestream = new FileInputStream(file);
+            BufferedInputStream bufferedfile = new BufferedInputStream(filestream);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
         for(int chunkIndex = 0; chunkIndex < this.nChunks; chunkIndex++) {
             byte[] buf = new byte[Globals.CHUNK_MAX_SIZE];
+            int nr_bytes = bufferedfile.read(buf);
+            if(nr_bytes == -1) buf = new byte[0];
             chunkList.add(new Chunk(buf, this.fileID, chunkIndex, this.replicationDegree, this.peerID));
         }
     }
