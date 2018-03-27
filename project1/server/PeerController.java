@@ -2,8 +2,12 @@ package server;
 
 import channel.Message;
 import receiver.*;
+import storage.FileSystem;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Created by antonioalmeida on 27/03/2018.
@@ -17,6 +21,12 @@ public class PeerController {
     private Receiver MCReceiver;
     private Receiver MDBReceiver;
     private Receiver MDRReceiver;
+
+    private FileSystem fileSystem;
+
+    // Stored chunks
+    // < fileID, chunkIndex > TODO: maybe use a ordered list (by index) to merge them easier later?
+    private ConcurrentHashMap<String, ArrayList<Integer>> storedChunks;
 
     public PeerController(Peer peer, String MCAddress, int MCPort, String MDBAddress, int MDBPort, String MDRAddress, int MDRPort) {
         this.peer = peer;
@@ -39,5 +49,13 @@ public class PeerController {
 
     public void handlePutchunkMessage(Message message) {
         System.out.println("Putchunk Message: " + message.fileID);
+
+        //TODO: process putchunk message
+
+        // for now:
+        // if not in storedChunks
+            //fileSystem.storeChunk;
+        // else ignore message
+
     }
 }
