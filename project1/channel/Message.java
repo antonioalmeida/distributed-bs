@@ -2,10 +2,6 @@ package channel;
 
 import java.lang.StringBuilder;
 
-enum MessageType {
-        PUTCHUNK, STORED, GETCHUNK, CHUNK, DELETE, REMOVED
-    }
-
 public class Message {
     public static String CRLF = "\r\n";
 
@@ -180,5 +176,33 @@ public class Message {
       result.append(new String(this.body));
 
       return result.toString();
+    }
+
+    public MessageType getType() {
+        return type;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public Integer getPeerID() {
+        return peerID;
+    }
+
+    public String getFileID() {
+        return fileID;
+    }
+
+    public Integer getChunkNr() {
+        return chunkNr;
+    }
+
+    public Integer getRepDegree() {
+        return repDegree;
+    }
+
+    public byte[] getBody() {
+        return body;
     }
 }

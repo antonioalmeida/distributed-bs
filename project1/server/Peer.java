@@ -3,7 +3,6 @@ package server;
 import channel.*;
 import protocol.BackupInitiator;
 import protocol.ProtocolInitiator;
-import receiver.*;
 import rmi.RemoteService;
 
 import java.io.IOException;
@@ -20,15 +19,20 @@ public class Peer implements RemoteService {
 
     private String rmiAccessPoint;
 
-    private Receiver MCReceiver;
-    private Receiver MDBReceiver;
-    private Receiver MDRReceiver;
+    private String MCAddress;
+    private int MCPort;
+
+    private String MDBAddress;
+    private int MDBPort;
+
+    private String MDRAddress;
+    private int MDRPort;
 
     private Channel MC;
     private Channel MDB;
     private Channel MDR;
 
-    private Dispatcher dispatcher;
+    private PeerController controller;
 
     // server.Peer args
     //<protocol version> <server id> <service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> <MDBReceiver port> <MDRReceiver address> <MDRReceiver port>
@@ -41,27 +45,25 @@ public class Peer implements RemoteService {
     }
 
     private Peer(final String args[]) throws IOException {
+        System.out.println("Cenas");
+        System.out.println("Args1 :" + args[1]);
+
         this.peerID = Integer.parseInt(args[1]);
 
         // RMI
         this.rmiAccessPoint = args[2];
         this.initRemoteStub(rmiAccessPoint);
 
-        this.dispatcher = new Dispatcher(this);
+        this.MCAddress = args[3]; this.MCPort = Integer.parseInt(args[4]);
+        this.MDBAddress = args[5]; this.MDBPort = Integer.parseInt(args[6]);
+        this.MDRAddress = args[7]; this.MDRPort = Integer.parseInt(args[8]);
 
-        // subscribe to multicast channels
-        this.MCReceiver = new ControlReceiver(args[3], Integer.parseInt(args[4]), dispatcher);
-        this.MDBReceiver = new BackupReceiver(args[5], Integer.parseInt(args[6]), dispatcher);
-        this.MDRReceiver = new RestoreReceiver(args[7], Integer.parseInt(args[8]), dispatcher);
+        this.controller = new PeerController(this, MCAddress, MCPort, MDBAddress, MDBPort, MDRAddress, MDRPort);
 
         this.MC = new Channel(args[3], Integer.parseInt(args[4]));
         this.MDB = new Channel(args[5], Integer.parseInt(args[6]));
         this.MDR = new Channel(args[7], Integer.parseInt(args[8]));
 
-
-        new Thread(MCReceiver).start();
-        new Thread(MDBReceiver).start();
-        new Thread(MDRReceiver).start();
     }
 
     private static boolean checkArgs(final String args[]) {
