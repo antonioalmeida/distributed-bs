@@ -7,7 +7,6 @@ import storage.FileSystem;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Created by antonioalmeida on 27/03/2018.
@@ -52,10 +51,10 @@ public class PeerController {
 
         //TODO: process putchunk message
 
-        // for now:
-        // if not in storedChunks
-            //fileSystem.storeChunk;
-        // else ignore message
+        if(!storedChunks.get(message.fileID).contains(message.chunkNr)) {
+          if(!this.fileSystem.storeChunk(message.body, message.fileID, message.chunkNr))
+            System.out.println("Not enough space to save chunk "+message.chunkNr+" of file "+message.fileID);
+        }
 
     }
 }
