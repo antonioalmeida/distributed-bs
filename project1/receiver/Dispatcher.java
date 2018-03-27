@@ -27,7 +27,7 @@ public class Dispatcher {
         threadPool.submit(() -> {
             Message message = new Message(buf);
             //Ignore messages from self
-            if(message.peerID.equals(this.peerID)) {
+            if(message.getPeerID().equals(this.peerID)) {
                 System.out.println("Same peer ID");
                 return;
             }

@@ -3,6 +3,7 @@ package server;
 import channel.Message;
 import receiver.*;
 import storage.FileSystem;
+import utils.Globals;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,17 +45,23 @@ public class PeerController {
         new Thread(MCReceiver).start();
         new Thread(MDBReceiver).start();
         new Thread(MDRReceiver).start();
+
+        storedChunks = new ConcurrentHashMap<String, ArrayList<Integer>>();
+
+        fileSystem = new FileSystem(Globals.MAX_PEER_STORAGE, Globals.PEER_FILESYSTEM_DIR + "/" + peer.getPeerID());
     }
 
     public void handlePutchunkMessage(Message message) {
-        System.out.println("Putchunk Message: " + message.fileID);
+        System.out.println("Putchunk Message: " + message.getFileID());
 
         //TODO: process putchunk message
-
-        if(!storedChunks.get(message.fileID).contains(message.chunkNr)) {
-          if(!this.fileSystem.storeChunk(message.body, message.fileID, message.chunkNr))
-            System.out.println("Not enough space to save chunk "+message.chunkNr+" of file "+message.fileID);
+        if(storedChunks.containsKey(message.getFileID()) && storedChunks.get(message.getFileID()).contains(message.getChunkNr())) {
+            System.out.println("Already stored chunk");
+            return;
         }
 
+        if (!this.fileSystem.storeChunk(message))
+            System.out.println("Not enough space to save chunk " + message.getChunkNr() + " of file " + message.getFileID());
     }
+
 }

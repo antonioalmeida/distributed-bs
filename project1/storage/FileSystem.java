@@ -1,5 +1,7 @@
 package storage;
 
+import channel.Message;
+
 import java.nio.file.Paths;
 import java.nio.file.Path;
 import java.nio.file.Files;
@@ -11,7 +13,6 @@ import java.io.IOException;
 public class FileSystem {
 
     private static final String BACKUP_DIRECTORY = "backup";
-    private static final String STORE_DIRECTORY = "store";
 
     private long maxStorage;
 
@@ -20,25 +21,48 @@ public class FileSystem {
     private String baseDirectory;
     private String backupDirectory;
 
-    public FileSystem(long maxStorage, String baseDir) {
+    public FileSystem(long maxStorage, String baseDirectory) {
         this.maxStorage = maxStorage;
-        this.baseDirectory = baseDir + "/";
+        this.baseDirectory = baseDirectory + "/";
 
         this.backupDirectory = baseDirectory + BACKUP_DIRECTORY;
+
+        initDirectories();
     }
 
-    public boolean storeChunk(byte[] chunkData, String chunkFileID, int chunkNr) {
-       if(usedStorage + chunkData.length > maxStorage) return false;
+    public boolean storeChunk(Message chunk) {
+        if(!hasFreeSpace(chunk.getBody().length))
+            return false;
 
-       try{
-         Path chunkPath = Paths.get(FileSystem.STORE_DIRECTORY+"/"+chunkFileID+"_"+chunkNr);
-         Files.write(chunkPath, chunkData);
-       }
-       catch(IOException e){
-         e.printStackTrace();
-       }
+        try {
+            Path chunkPath = Paths.get(this.backupDirectory + "/"+chunk.getFileID()+"_"+chunk.getChunkNr());
+            System.out.println(chunkPath.toAbsolutePath());
 
-       this.usedStorage += chunkData.length;
-       return true;
+            if(!Files.exists(chunkPath))
+                Files.createFile(chunkPath);
+
+            Files.write(chunkPath, chunk.getBody());
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+
+        this.usedStorage += chunk.getBody().length;
+        return true;
+    }
+
+    private void initDirectories() {
+        Path backupPath = Paths.get(this.backupDirectory);
+
+        if(!Files.exists(backupPath))
+            try {
+                Files.createDirectories(backupPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    }
+
+    private boolean hasFreeSpace(long size) {
+        return usedStorage + size > maxStorage;
     }
 }

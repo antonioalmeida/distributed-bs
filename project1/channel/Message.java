@@ -5,14 +5,14 @@ import java.lang.StringBuilder;
 public class Message {
     public static String CRLF = "\r\n";
 
-    public MessageType type;
-    public String version;
-    public Integer peerID;
-    public String fileID;
+    protected MessageType type;
+    protected String version;
+    protected Integer peerID;
+    protected String fileID;
     //Not used on all messages so null until (eventually) overwritten
-    public Integer chunkNr = null;
-    public Integer repDegree = null;
-    public byte[] body = null;
+    protected Integer chunkNr = null;
+    protected Integer repDegree = null;
+    protected byte[] body = null;
 
     //Processes a message's header line
     public void processHeader(String str) {
