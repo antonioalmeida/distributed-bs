@@ -1,3 +1,5 @@
+package server;
+
 import channel.*;
 import protocol.BackupInitiator;
 import protocol.ProtocolInitiator;
@@ -28,7 +30,7 @@ public class Peer implements RemoteService {
 
     private Dispatcher dispatcher;
 
-    // Peer args
+    // server.Peer args
     //<protocol version> <server id> <service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> <MDBReceiver port> <MDRReceiver address> <MDRReceiver port>
     public static void main(final String args[]) throws IOException {
         Peer peer;
@@ -72,7 +74,7 @@ public class Peer implements RemoteService {
     private static void printUsage() {
         //TODO: add thorough usage information
         System.out.println("Usage:");
-        System.out.println("Java Peer : <protocol version> <server id> <service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> <MDBReceiver port> <MDRReceiver address> <MDRReceiver port>");
+        System.out.println("Java server.Peer : <protocol version> <server id> <service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> <MDBReceiver port> <MDRReceiver address> <MDRReceiver port>");
     }
 
     protected void initRemoteStub(String accessPoint) {
@@ -88,6 +90,10 @@ public class Peer implements RemoteService {
             System.err.println("Server exception: " + e.toString());
             e.printStackTrace();
         }
+    }
+
+    public int getPeerID() {
+        return peerID;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package receiver;
 
 import channel.Message;
-import Peer;
+import server.Peer;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,7 +24,7 @@ public class Dispatcher {
         threadPool.submit(() -> {
             Message message = new Message(buf);
             //Ignore messages from self
-            if(message.peerID.equals(this.peer.peerID))
+            if(message.peerID.equals(this.peer.getPeerID()))
               return;
             System.out.println("Received Message: " + message.fileID);
         });

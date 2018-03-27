@@ -3,10 +3,7 @@ package storage;
 import utils.Globals;
 import utils.Utils;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -41,18 +38,22 @@ public class ChunkCreator {
     }
 
     private void createChunks(File file) {
+
         try {
             FileInputStream filestream = new FileInputStream(file);
             BufferedInputStream bufferedfile = new BufferedInputStream(filestream);
+
+            for(int chunkIndex = 0; chunkIndex < this.nChunks; chunkIndex++) {
+                byte[] buf = new byte[Globals.CHUNK_MAX_SIZE];
+                int nr_bytes = bufferedfile.read(buf);
+                if(nr_bytes == -1) buf = new byte[0];
+                chunkList.add(new Chunk(buf, this.fileID, chunkIndex, this.replicationDegree, this.peerID));
+            }
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-
-        for(int chunkIndex = 0; chunkIndex < this.nChunks; chunkIndex++) {
-            byte[] buf = new byte[Globals.CHUNK_MAX_SIZE];
-            int nr_bytes = bufferedfile.read(buf);
-            if(nr_bytes == -1) buf = new byte[0];
-            chunkList.add(new Chunk(buf, this.fileID, chunkIndex, this.replicationDegree, this.peerID));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
