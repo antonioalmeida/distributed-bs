@@ -79,6 +79,13 @@ public class Message {
       System.arraycopy(message, headerLength, this.body, 0, message.length-headerLength);
     }
 
+    public Message(String version, Integer peerID, String fileID, byte[] body) {
+        this.version = version;
+        this.peerID = peerID;
+        this.fileID = fileID;
+        this.body = body;
+    }
+
     public byte[] buildMessagePacket() {
       StringBuilder result = new StringBuilder();
       switch(this.type){
@@ -121,9 +128,12 @@ public class Message {
       result.append(Message.CRLF+Message.CRLF);
 
       String header = result.toString();
-      byte[] packet = new byte[header.length+this.body.length];
-      System.arraycopy(header, 0, packet, 0, header.length);
-      System.arraycopy(this.body, 0, packet, header.length, this.body.length);
+      System.out.println(header);
+
+      byte[] headerArr = header.getBytes();
+      byte[] packet = new byte[headerArr.length+this.body.length];
+      System.arraycopy(headerArr, 0, packet, 0, headerArr.length);
+      System.arraycopy(this.body, 0, packet, header.length(), this.body.length);
 
       return packet;
     }

@@ -1,14 +1,16 @@
 package channel;
 
+import storage.Chunk;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 /**
- * Created by antonioalmeida on 07/03/2018.
+ * Created by antonioalmeida on 27/03/2018.
  */
-public abstract class Channel implements Runnable {
+public class Channel {
 
     // Multicast channel is defined by its address and port
     protected InetAddress address;
@@ -17,47 +19,23 @@ public abstract class Channel implements Runnable {
     protected MulticastSocket socket;
 
     public Channel(String address, int port) throws IOException {
-        // create multicast socket
         this.socket = new MulticastSocket(port);
         this.socket.setTimeToLive(1);
 
         this.address = InetAddress.getByName(address);
         this.port = port;
 
-        //join multicast group
-        socket.joinGroup(this.address);
-
-        System.out.println("Joined Multicast Channel " + address + ":" + port);
+        System.out.println("Joined Multicast Receiver " + address + ":" + port);
     }
-
-    @Override
-    public void run() {
-        //continuously receive multicast messages
-
-        byte[] mbuf = new byte[65535];
-
-        int count = 0;
-        while(count < 10) {
-            DatagramPacket multicastPacket = new DatagramPacket(mbuf, mbuf.length);
-
-            try {
-                //TODO: ignore messages sent by itself
-                this.socket.receive(multicastPacket);
-            } catch (IOException e) {
-                System.out.println("Error receiving multicast message");
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void parseMessage(DatagramPacket packet) {
-        String request = new String(packet.getData()).trim();
-    }
-
-    public abstract void sendSampleMessage() throws IOException;
 
     public void sendMessage(String message) throws IOException {
         byte[] rbuf = message.getBytes();
+        this.socket.send(new DatagramPacket(rbuf, rbuf.length, address, port));
+    }
+
+    public void sendMessage(Message message) throws IOException {
+        byte[] rbuf = message.buildMessagePacket();
+        System.out.println("Size :" + rbuf.length);
         this.socket.send(new DatagramPacket(rbuf, rbuf.length, address, port));
     }
 

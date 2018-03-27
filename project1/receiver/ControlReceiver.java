@@ -1,14 +1,13 @@
-package channel;
+package receiver;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.InetAddress;
 
 /**
  * Created by antonioalmeida on 17/03/2018.
  */
-public class ControlChannel extends Channel {
-    public ControlChannel(String address, int port) throws IOException {
+public class ControlReceiver extends Receiver {
+    public ControlReceiver(String address, int port) throws IOException {
         super(address, port);
     }
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.security.MessageDigest;
 import javax.xml.bind.DatatypeConverter;
 import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 
 public class Utils {
   //Useful constants
@@ -24,5 +25,10 @@ public class Utils {
     byte[] hashed = sha_256.digest(fileUniqueStr.getBytes());
 
     return DatatypeConverter.printHexBinary(hashed);
+  }
+
+  public static final int getRandomTime(int max) {
+      Random rand = new Random();
+      return rand.nextInt(max);
   }
 }
