@@ -1,5 +1,7 @@
 package channel;
 
+import utils.Globals;
+
 import java.lang.StringBuilder;
 
 public class Message {
@@ -63,15 +65,20 @@ public class Message {
       int headerLength = 0;
       for (int i = 0; i < message.length; ++i) {
             if((char)message[i] == '\r') { //TODO: Parse better
-              headerLength = i+1;
+              headerLength = i+4;
               break;
             }
       }
 
+      System.out.println("Body size: "  + (message.length - headerLength));
+
       String header = new String(message, 0, headerLength);
       processHeader(header);
-      this.body = new byte[message.length - headerLength];
-      System.arraycopy(message, headerLength, this.body, 0, message.length-headerLength);
+
+      //TODO: replace with proper body length calculation
+      this.body = new byte[Globals.CHUNK_MAX_SIZE];
+      System.arraycopy(message, headerLength, this.body, 0, Globals.CHUNK_MAX_SIZE);
+
     }
 
     public Message(String version, Integer peerID, String fileID, byte[] body) {
@@ -133,49 +140,49 @@ public class Message {
 
     @Override
     public String toString() {
-      StringBuilder result = new StringBuilder();
-      switch(this.type){
-          case PUTCHUNK:
-              result.append("PUTCHUNK ");
-              break;
-          case STORED:
-              result.append("STORED ");
-              break;
-          case GETCHUNK:
-              result.append("GETCHUNK ");
-              break;
-          case CHUNK:
-              result.append("CHUNK ");
-              break;
-          case DELETE:
-              result.append("DELETE ");
-              break;
-          case REMOVED:
-              result.append("REMOVED ");
-              break;
-          default:
-              break;
-      }
+        StringBuilder result = new StringBuilder();
+        switch(this.type){
+            case PUTCHUNK:
+                result.append("PUTCHUNK ");
+                break;
+            case STORED:
+                result.append("STORED ");
+                break;
+            case GETCHUNK:
+                result.append("GETCHUNK ");
+                break;
+            case CHUNK:
+                result.append("CHUNK ");
+                break;
+            case DELETE:
+                result.append("DELETE ");
+                break;
+            case REMOVED:
+                result.append("REMOVED ");
+                break;
+            default:
+                break;
+        }
 
-      result.append(this.version);
-      result.append(" ");
-      result.append(this.peerID);
-      result.append(" ");
-      result.append(this.fileID);
-      result.append(" ");
-      if(this.chunkNr != null) {
-        result.append(this.chunkNr);
+        result.append(this.version);
         result.append(" ");
-      }
-      if(this.repDegree != null) {
-        result.append(this.repDegree);
+        result.append(this.peerID);
         result.append(" ");
-      }
-      result.append(Message.CRLF+Message.CRLF);
-      if(this.body != null)
-      result.append(new String(this.body));
+        result.append(this.fileID);
+        result.append(" ");
+        if(this.chunkNr != null) {
+            result.append(this.chunkNr);
+            result.append(" ");
+        }
+        if(this.repDegree != null) {
+            result.append(this.repDegree);
+            result.append(" ");
+        }
+        result.append(Message.CRLF+Message.CRLF);
+        if(this.body != null)
+            result.append(new String(this.body));
 
-      return result.toString();
+        return result.toString();
     }
 
     public MessageType getType() {
