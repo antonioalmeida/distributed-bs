@@ -1,5 +1,6 @@
 package storage;
 
+import channel.ChunkMessage;
 import utils.Globals;
 import utils.Utils;
 
@@ -11,7 +12,7 @@ import java.util.ArrayList;
  */
 public class ChunkCreator {
 
-    private ArrayList<Chunk> chunkList;
+    private ArrayList<ChunkMessage> chunkList;
 
     private int nChunks;
 
@@ -34,7 +35,7 @@ public class ChunkCreator {
         long fileSize = file.length();
 
         this.nChunks = (int) (fileSize / Globals.CHUNK_MAX_SIZE + 1);
-        this.chunkList = new ArrayList<Chunk>();
+        this.chunkList = new ArrayList<ChunkMessage>();
     }
 
     private void createChunks(File file) {
@@ -47,7 +48,7 @@ public class ChunkCreator {
                 byte[] buf = new byte[Globals.CHUNK_MAX_SIZE];
                 int nr_bytes = bufferedfile.read(buf);
                 if(nr_bytes == -1) buf = new byte[0];
-                chunkList.add(new Chunk(buf, this.fileID, chunkIndex, this.replicationDegree, this.peerID));
+                chunkList.add(new ChunkMessage(buf, this.fileID, chunkIndex, this.replicationDegree, this.peerID));
             }
 
         } catch (FileNotFoundException e) {
@@ -57,7 +58,7 @@ public class ChunkCreator {
         }
     }
 
-    public ArrayList<Chunk> getChunkList() {
+    public ArrayList<ChunkMessage> getChunkList() {
         return chunkList;
     }
 }

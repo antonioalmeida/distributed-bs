@@ -2,7 +2,6 @@ package protocol;
 
 import channel.Channel;
 import channel.ChunkMessage;
-import storage.Chunk;
 import storage.ChunkCreator;
 import utils.Globals;
 import utils.Utils;
@@ -33,17 +32,17 @@ public class BackupInitiator extends ProtocolInitiator {
     public void run() {
 
         ChunkCreator creator = new ChunkCreator(filePath, replicationDegree, peerID);
-        ArrayList<Chunk> chunkList = creator.getChunkList();
+        ArrayList<ChunkMessage> chunkList = creator.getChunkList();
 
         sendChunks(chunkList);
         System.out.println("Backup Instance running");
     }
 
-    private void sendChunks(ArrayList<Chunk> chunkList) {
+    private void sendChunks(ArrayList<ChunkMessage> chunkList) {
         System.out.println(chunkList.get(0).getChunkIndex());
         try {
 
-            for(Chunk chunk : chunkList) {
+            for(ChunkMessage chunk : chunkList) {
                 // Wait random delay uniformly distributed between 0 and 400 ms
                 try {
                     Thread.sleep(Utils.getRandomTime(Globals.MAX_PUTCHUNK_WAITING_TIME));
@@ -51,8 +50,7 @@ public class BackupInitiator extends ProtocolInitiator {
                     e.printStackTrace();
                 }
 
-                ChunkMessage message = new ChunkMessage(chunk, 1);
-                this.channel.sendMessage(message);
+                this.channel.sendMessage(chunk);
             }
         } catch (IOException e) {
             e.printStackTrace();

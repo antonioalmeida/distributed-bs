@@ -18,7 +18,7 @@ public class TestApp {
             Registry registry = LocateRegistry.getRegistry(host);
 
             RemoteService stub = (RemoteService) registry.lookup("remote");
-            stub.backupFile("test1Mb.db", 1);
+            stub.backupFile("number.txt", 1);
             System.out.println("response");
         } catch (Exception e) {
             System.err.println("Client exception: " + e.toString());
