@@ -1,12 +1,13 @@
 package server;
 
+import channel.ChunkMessage;
 import channel.Message;
 import channel.StoredMessage;
+import javafx.util.Pair;
 import receiver.*;
 import storage.FileSystem;
 import utils.Globals;
 
-import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,6 +31,9 @@ public class PeerController {
     // < fileID, chunkIndex > TODO: maybe use a ordered list (by index) to merge them easier later?
     private ConcurrentHashMap<String, ArrayList<Integer>> storedChunks;
 
+    // < (fileID, chunkIndex), replicationDegree >
+    private ConcurrentHashMap<Pair<String, Integer>, Integer> chunksReplicationDegree;
+
     public PeerController(Peer peer, String MCAddress, int MCPort, String MDBAddress, int MDBPort, String MDRAddress, int MDRPort) {
         this.peer = peer;
 
@@ -45,6 +49,7 @@ public class PeerController {
         }
 
         storedChunks = new ConcurrentHashMap<String, ArrayList<Integer>>();
+        chunksReplicationDegree = new ConcurrentHashMap<Pair<String, Integer>, Integer>();
 
         fileSystem = new FileSystem(Globals.MAX_PEER_STORAGE, Globals.PEER_FILESYSTEM_DIR + "/" + peer.getPeerID());
     }
@@ -52,15 +57,15 @@ public class PeerController {
     public void handlePutchunkMessage(Message message) {
         System.out.println("Received Putchunk: " + message.getFileID());
 
-        if(storedChunks.containsKey(message.getFileID()) && storedChunks.get(message.getFileID()).contains(message.getChunkNr())) {
+        if(storedChunks.containsKey(message.getFileID()) && storedChunks.get(message.getFileID()).contains(message.getChunkIndex())) {
             System.out.println("Already stored chunk");
             return;
         }
 
         if (!this.fileSystem.storeChunk(message))
-            System.out.println("Not enough space to save chunk " + message.getChunkNr() + " of file " + message.getFileID());
+            System.out.println("Not enough space to save chunk " + message.getChunkIndex() + " of file " + message.getFileID());
 
-        Message storedMessage = new StoredMessage(message.getVersion(), peer.getPeerID(), message.getFileID(), message.getChunkNr());
+        Message storedMessage = new StoredMessage(message.getVersion(), peer.getPeerID(), message.getFileID(), message.getChunkIndex());
 
         MCReceiver.sendWithRandomDelay(0, Globals.MAX_STORED_WAITING_TIME, storedMessage);
         System.out.println("Sent Stored");
@@ -68,6 +73,17 @@ public class PeerController {
 
     public void handleStoredMessage(Message message) {
         System.out.println("Received Stored Message: " + message.getFileID());
+
+        Pair key = new Pair<String, Integer>(message.getFileID(), message.getChunkIndex());
+        int currentDegree = chunksReplicationDegree.getOrDefault(key, 0);
+
+        // Increment chunk degree
+        chunksReplicationDegree.put(key, currentDegree+1);
+    }
+
+    public int getChunkReplicationDegree(ChunkMessage chunk) {
+        Pair<String, Integer> key = new Pair<>(chunk.getFileID(), chunk.getChunkIndex());
+        return chunksReplicationDegree.getOrDefault(key, 0);
     }
 
 }

@@ -3,6 +3,7 @@ package server;
 import channel.*;
 import protocol.BackupInitiator;
 import protocol.ProtocolInitiator;
+import receiver.ControlReceiver;
 import rmi.RemoteService;
 
 import java.io.IOException;
@@ -98,6 +99,10 @@ public class Peer implements RemoteService {
         return peerID;
     }
 
+    public PeerController getController() {
+        return controller;
+    }
+
     @Override
     public String test() throws RemoteException {
         System.out.println("Testing RMI");
@@ -106,7 +111,7 @@ public class Peer implements RemoteService {
 
     @Override
     public void backupFile(String filePath, int replicationDegree) throws RemoteException{
-        ProtocolInitiator backupInstance = new BackupInitiator(filePath, replicationDegree, peerID, MDB);
+        ProtocolInitiator backupInstance = new BackupInitiator(this, filePath, replicationDegree, MDB);
         new Thread(backupInstance).start();
     }
 }

@@ -12,8 +12,4 @@ public class ChunkMessage extends Message {
         this.repDegree = replicationDegree;
         this.chunkNr = chunkIndex;
     }
-
-    public int getChunkIndex() {
-       return this.chunkNr;
-    }
 }

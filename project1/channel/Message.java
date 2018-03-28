@@ -209,7 +209,7 @@ public class Message {
         return fileID;
     }
 
-    public Integer getChunkNr() {
+    public Integer getChunkIndex() {
         return chunkNr;
     }
 

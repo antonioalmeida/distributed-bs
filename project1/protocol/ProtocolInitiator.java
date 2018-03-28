@@ -1,6 +1,7 @@
 package protocol;
 
 import channel.Message;
+import server.Peer;
 
 /**
  * Created by antonioalmeida on 21/03/2018.
@@ -8,6 +9,9 @@ import channel.Message;
 public abstract class ProtocolInitiator implements Runnable {
     protected Message request;
 
-    public ProtocolInitiator() {
+    protected Peer peer;
+
+    public ProtocolInitiator(Peer peer) {
+        this.peer = peer;
     }
 }

@@ -35,7 +35,7 @@ public class FileSystem {
             return false;
 
         try {
-            Path chunkPath = Paths.get(this.backupDirectory + "/"+chunk.getFileID()+"_"+chunk.getChunkNr());
+            Path chunkPath = Paths.get(this.backupDirectory + "/"+chunk.getFileID()+"_"+chunk.getChunkIndex());
             System.out.println(chunkPath.toAbsolutePath());
 
             if(!Files.exists(chunkPath))
