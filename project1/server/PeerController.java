@@ -1,10 +1,12 @@
 package server;
 
 import channel.Message;
+import channel.StoredMessage;
 import receiver.*;
 import storage.FileSystem;
 import utils.Globals;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,16 +37,12 @@ public class PeerController {
 
         // subscribe to multicast channels
         try {
-            this.MCReceiver = new ControlReceiver(MCAddress, MCPort, dispatcher);
-            this.MDBReceiver = new BackupReceiver(MDBAddress, MDBPort, dispatcher);
-            this.MDRReceiver = new RestoreReceiver(MDRAddress, MDRPort, dispatcher);
+            this.MCReceiver = new Receiver(MCAddress, MCPort, dispatcher);
+            this.MDBReceiver = new Receiver(MDBAddress, MDBPort, dispatcher);
+            this.MDRReceiver = new Receiver(MDRAddress, MDRPort, dispatcher);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        new Thread(MCReceiver).start();
-        new Thread(MDBReceiver).start();
-        new Thread(MDRReceiver).start();
 
         storedChunks = new ConcurrentHashMap<String, ArrayList<Integer>>();
 
@@ -52,9 +50,8 @@ public class PeerController {
     }
 
     public void handlePutchunkMessage(Message message) {
-        System.out.println("Putchunk Message: " + message.getFileID());
+        System.out.println("Received Putchunk: " + message.getFileID());
 
-        //TODO: process putchunk message
         if(storedChunks.containsKey(message.getFileID()) && storedChunks.get(message.getFileID()).contains(message.getChunkNr())) {
             System.out.println("Already stored chunk");
             return;
@@ -62,6 +59,15 @@ public class PeerController {
 
         if (!this.fileSystem.storeChunk(message))
             System.out.println("Not enough space to save chunk " + message.getChunkNr() + " of file " + message.getFileID());
+
+        Message storedMessage = new StoredMessage(message.getVersion(), peer.getPeerID(), message.getFileID(), message.getChunkNr());
+
+        MCReceiver.sendWithRandomDelay(0, Globals.MAX_STORED_WAITING_TIME, storedMessage);
+        System.out.println("Sent Stored");
+    }
+
+    public void handleStoredMessage(Message message) {
+        System.out.println("Received Stored Message: " + message.getFileID());
     }
 
 }

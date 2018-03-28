@@ -11,6 +11,7 @@ public class Message {
     protected String version;
     protected Integer peerID;
     protected String fileID;
+
     //Not used on all messages so null until (eventually) overwritten
     protected Integer chunkNr = null;
     protected Integer repDegree = null;
@@ -131,9 +132,16 @@ public class Message {
 
       String header = result.toString();
       byte[] headerArr = header.getBytes();
-      byte[] packet = new byte[headerArr.length+this.body.length];
+
+      int bodyLength;
+      if(this.body == null) bodyLength = 0;
+      else bodyLength = this.body.length;
+
+      byte[] packet = new byte[headerArr.length + bodyLength];
       System.arraycopy(headerArr, 0, packet, 0, headerArr.length);
-      System.arraycopy(this.body, 0, packet, header.length(), this.body.length);
+
+      if(this.body != null)
+          System.arraycopy(this.body, 0, packet, header.length(), bodyLength);
 
       return packet;
     }

@@ -5,16 +5,6 @@ package channel;
  */
 public class ChunkMessage extends Message {
 
-    /*
-    public ChunkMessage(Chunk chunk, int degree) {
-        super("1.0", chunk.getPeerID(), chunk.getFileID(), chunk.getFileData());
-
-        this.type = MessageType.PUTCHUNK;
-        this.repDegree = degree;
-        this.chunkNr = chunk.getChunkIndex();
-    }
-    */
-
     public ChunkMessage(byte[] buf, String fileID, int chunkIndex, int replicationDegree, int peerID) {
         super("1.0", peerID, fileID, buf);
 

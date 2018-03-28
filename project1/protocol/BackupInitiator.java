@@ -30,7 +30,6 @@ public class BackupInitiator extends ProtocolInitiator {
 
     @Override
     public void run() {
-
         ChunkCreator creator = new ChunkCreator(filePath, replicationDegree, peerID);
         ArrayList<ChunkMessage> chunkList = creator.getChunkList();
 

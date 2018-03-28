@@ -1,6 +1,8 @@
 package receiver;
 
+import channel.Message;
 import server.PeerController;
+import utils.Utils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -10,7 +12,7 @@ import java.net.MulticastSocket;
 /**
  * Created by antonioalmeida on 07/03/2018.
  */
-public abstract class Receiver implements Runnable {
+public class Receiver {
 
     // Multicast channel is defined by its address and port
     protected InetAddress address;
@@ -33,40 +35,58 @@ public abstract class Receiver implements Runnable {
         //join multicast group
         socket.joinGroup(this.address);
 
+        startListening();
+
         System.out.println("Joined Multicast Receiver " + address + ":" + port);
     }
 
-    @Override
-    public void run() {
-        //continuously receive multicast messages
+    private void startListening() {
+        new Thread(() -> {
+            byte[] mbuf = new byte[65535];
 
-        byte[] mbuf = new byte[65535];
+            int count = 0;
+            while(count < 10) {
+                DatagramPacket multicastPacket = new DatagramPacket(mbuf, mbuf.length);
 
-        int count = 0;
-        while(count < 10) {
-            DatagramPacket multicastPacket = new DatagramPacket(mbuf, mbuf.length);
-
-            try {
-                //TODO: ignore messages sent by itself
-                this.socket.receive(multicastPacket);
-                this.dispatcher.handleMessage(multicastPacket.getData());
-
-            } catch (IOException e) {
-                System.out.println("Error receiving multicast message");
-                e.printStackTrace();
+                try {
+                    //TODO: ignore messages sent by itself
+                    this.socket.receive(multicastPacket);
+                    this.dispatcher.handleMessage(multicastPacket.getData());
+                } catch (IOException e) {
+                    System.out.println("Error receiving multicast message");
+                    e.printStackTrace();
+                }
             }
-        }
+        }).start();
     }
 
     public void parseMessage(DatagramPacket packet) {
         String request = new String(packet.getData()).trim();
     }
 
-    public abstract void sendSampleMessage() throws IOException;
+    public void sendMessage(Message message) {
+        System.out.println("Sending message");
+        byte[] rbuf = message.buildMessagePacket();
+        System.out.println("Size :" + rbuf.length);
 
-    public void sendMessage(String message) throws IOException {
-        byte[] rbuf = message.getBytes();
-        this.socket.send(new DatagramPacket(rbuf, rbuf.length, address, port));
+        try {
+            this.socket.send(new DatagramPacket(rbuf, rbuf.length, address, port));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendWithRandomDelay(int min, int max, Message message) {
+        int random = Utils.getRandomBetween(min, max);
+
+        try {
+            //TODO: remove Thread.sleep everywhere
+            Thread.sleep(random);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        sendMessage(message);
     }
 
 }

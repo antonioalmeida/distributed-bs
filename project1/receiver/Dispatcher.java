@@ -36,6 +36,9 @@ public class Dispatcher {
                 case PUTCHUNK:
                     controller.handlePutchunkMessage(message);
                     break;
+                case STORED:
+                    controller.handleStoredMessage(message);
+                    break;
                 default:
                     System.out.println("No valid type");
             }
