@@ -3,6 +3,7 @@ package test;
 
 import rmi.RemoteService;
 
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -11,18 +12,33 @@ import java.rmi.registry.Registry;
  */
 public class TestApp {
 
-    public static void main(final String args[]) {
+    public static void main(final String args[]) throws RemoteException {
 
         String host = (args.length < 1) ? null : args[0];
-        try {
-            Registry registry = LocateRegistry.getRegistry(host);
+        RemoteService stub = initApp(host);
+        String filePath = args[2];
 
-            RemoteService stub = (RemoteService) registry.lookup("remote");
-            stub.backupFile("testimage.png", 1);
-            System.out.println("response");
+        switch(args[1]) {
+            case "backup":
+                stub.backupFile(filePath, 1);
+                break;
+            case "restore":
+                stub.recoverFile(filePath);
+                break;
+        }
+    }
+
+    private static RemoteService initApp(String host) {
+        RemoteService stub = null;
+
+        try {
+            Registry registry = LocateRegistry.getRegistry(null);
+            stub = (RemoteService) registry.lookup(host);
         } catch (Exception e) {
-            System.err.println("Client exception: " + e.toString());
+            System.err.println("Error connecting to remote object '" + host + "'");
             e.printStackTrace();
         }
+
+        return stub;
     }
 }
