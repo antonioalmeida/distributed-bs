@@ -71,8 +71,6 @@ public class Message {
             }
       }
 
-      System.out.println("Body size: "  + (message.length - headerLength));
-
       String header = new String(message, 0, headerLength);
       processHeader(header);
 

@@ -1,6 +1,9 @@
 package storage;
 
+import channel.ChunkMessage;
 import channel.Message;
+import server.Peer;
+import utils.Globals;
 
 import java.nio.file.Paths;
 import java.nio.file.Path;
@@ -18,25 +21,27 @@ public class FileSystem {
 
     private long usedStorage;
 
+    private Peer peer;
+
     private String baseDirectory;
     private String backupDirectory;
 
-    public FileSystem(long maxStorage, String baseDirectory) {
+    public FileSystem(Peer peer, long maxStorage, String baseDirectory) {
         this.maxStorage = maxStorage;
         this.baseDirectory = baseDirectory + "/";
+        this.peer = peer;
 
         this.backupDirectory = baseDirectory + BACKUP_DIRECTORY;
 
         initDirectories();
     }
 
-    public boolean storeChunk(Message chunk) {
+    public synchronized boolean storeChunk(Message chunk) {
         if(!hasFreeSpace(chunk.getBody().length))
             return false;
 
         try {
             Path chunkPath = Paths.get(this.backupDirectory + "/"+chunk.getFileID()+"_"+chunk.getChunkIndex());
-            System.out.println(chunkPath.toAbsolutePath());
 
             if(!Files.exists(chunkPath))
                 Files.createFile(chunkPath);
@@ -49,6 +54,20 @@ public class FileSystem {
 
         this.usedStorage += chunk.getBody().length;
         return true;
+    }
+
+    public synchronized Message retrieveChunk(String fileID, int chunkIndex) {
+        Path chunkPath = Paths.get(this.backupDirectory + "/"+fileID+"_"+chunkIndex);
+
+        byte[] buf = new byte[Globals.CHUNK_MAX_SIZE];
+        try {
+            buf = Files.readAllBytes(chunkPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Message chunk = new ChunkMessage("1.0", peer.getPeerID(), fileID, chunkIndex, buf);
+        return chunk;
     }
 
     private void initDirectories() {

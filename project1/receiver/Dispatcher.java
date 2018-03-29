@@ -12,11 +12,11 @@ import java.util.concurrent.Executors;
  */
 public class Dispatcher {
 
-    private final int MAX_PROCESSING_THREADS = 10;
+    private final int MAX_DISPATCHER_THREADS = 50;
     private int peerID;
     private PeerController controller;
 
-    private ExecutorService threadPool = Executors.newFixedThreadPool(MAX_PROCESSING_THREADS);
+    private ExecutorService threadPool = Executors.newFixedThreadPool(MAX_DISPATCHER_THREADS);
 
     public Dispatcher(PeerController controller, int peerID) {
         this.peerID = peerID;
@@ -26,11 +26,10 @@ public class Dispatcher {
     public void handleMessage(byte[] buf) {
         threadPool.submit(() -> {
             Message message = new Message(buf);
+
             //Ignore messages from self
-            if(message.getPeerID().equals(this.peerID)) {
-                System.out.println("Same peer ID");
+            if(message.getPeerID().equals(this.peerID))
                 return;
-            }
 
             switch(message.getType()) {
                 case PUTCHUNK:
@@ -38,6 +37,12 @@ public class Dispatcher {
                     break;
                 case STORED:
                     controller.handleStoredMessage(message);
+                    break;
+                case GETCHUNK:
+                    controller.handleGetChunkMessage(message);
+                    break;
+                case CHUNK:
+                    controller.handleChunkMessage(message);
                     break;
                 default:
                     System.out.println("No valid type");

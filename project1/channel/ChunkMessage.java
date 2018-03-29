@@ -1,15 +1,13 @@
 package channel;
 
 /**
- * Created by antonioalmeida on 27/03/2018.
+ * Created by antonioalmeida on 28/03/2018.
  */
 public class ChunkMessage extends Message {
+    public ChunkMessage(String version, Integer peerId, String fileID, int chunkIndex, byte[] body) {
+        super(version, peerId, fileID, body);
 
-    public ChunkMessage(byte[] buf, String fileID, int chunkIndex, int replicationDegree, int peerID) {
-        super("1.0", peerID, fileID, buf);
-
-        this.type = MessageType.PUTCHUNK;
-        this.repDegree = replicationDegree;
         this.chunkNr = chunkIndex;
+        this.type = MessageType.CHUNK;
     }
 }

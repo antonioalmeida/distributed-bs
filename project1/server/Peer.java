@@ -3,6 +3,7 @@ package server;
 import channel.*;
 import protocol.BackupInitiator;
 import protocol.ProtocolInitiator;
+import protocol.RestoreInitiator;
 import receiver.ControlReceiver;
 import rmi.RemoteService;
 
@@ -46,9 +47,7 @@ public class Peer implements RemoteService {
     }
 
     private Peer(final String args[]) throws IOException {
-        System.out.println("Cenas");
-        System.out.println("Args1 :" + args[1]);
-
+        System.out.println("Starting Peer with ID " + args[1]);
         this.peerID = Integer.parseInt(args[1]);
 
         // RMI
@@ -113,5 +112,11 @@ public class Peer implements RemoteService {
     public void backupFile(String filePath, int replicationDegree) throws RemoteException{
         ProtocolInitiator backupInstance = new BackupInitiator(this, filePath, replicationDegree, MDB);
         new Thread(backupInstance).start();
+    }
+
+    @Override
+    public void recoverFile(String filePath) throws RemoteException {
+        ProtocolInitiator recoverInstance = new RestoreInitiator(this, filePath, MC);
+        new Thread(recoverInstance).start();
     }
 }

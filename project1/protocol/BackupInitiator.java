@@ -1,8 +1,8 @@
 package protocol;
 
 import channel.Channel;
-import channel.ChunkMessage;
-import com.sun.javafx.scene.control.GlobalMenuAdapter;
+import channel.Message;
+import channel.PutChunkMessage;
 import server.Peer;
 import storage.ChunkCreator;
 import utils.Globals;
@@ -18,39 +18,48 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  */
 public class BackupInitiator extends ProtocolInitiator {
 
+    private static final int MAX_PUTCHUNK_DELAY_TIME = 100;
+
     private String filePath;
     private int replicationDegree;
 
-    private ScheduledExecutorService executor;
-
-    Channel channel;
-
     public BackupInitiator(Peer peer, String filePath, int replicationDegree, Channel channel) {
-        super(peer);
+        super(peer, channel);
         this.filePath = filePath;
         this.replicationDegree = replicationDegree;
-        this.channel = channel;
-
-        this.executor = new ScheduledThreadPoolExecutor(10);
     }
 
     @Override
     public void run() {
         ChunkCreator creator = new ChunkCreator(filePath, replicationDegree, peer.getPeerID());
-        ArrayList<ChunkMessage> chunkList = creator.getChunkList();
 
+        ArrayList<Message> chunkList = creator.getChunkList();
+        String fileID = new String(chunkList.get(0).getFileID());
+        int chunkAmmount = chunkList.size();
+
+        int tries = 0;
+        int waitTime = 500; // initially 500 so in first iteration it doubles to 1000
         do {
-            sendChunks(chunkList);
-        } while(!confirmStoredMessages(chunkList));
+            sendMessages(chunkList, MAX_PUTCHUNK_DELAY_TIME);
+            tries++; waitTime *= 2;
+            System.out.println("Sent " + filePath + " PUTCHUNK messages " + tries + " times");
 
-        System.out.println("Backup Instance running");
+            if(tries > Globals.MAX_PUTCHUNK_TRIES) {
+                System.out.println("Aborting backup, attempt limit reached");
+                return;
+            }
+        } while(!confirmStoredMessages(chunkList, waitTime));
+
+        peer.getController().addBackedUpFile(filePath, fileID, chunkAmmount);
+        System.out.println("File " + filePath + " backed up");
     }
 
-    private void sendChunks(ArrayList<ChunkMessage> chunkList) {
+    /*
+    private void sendChunks(ArrayList<PutChunkMessage> chunkList) {
         System.out.println(chunkList.get(0).getChunkIndex());
         try {
 
-            for(ChunkMessage chunk : chunkList) {
+            for(PutChunkMessage chunk : chunkList) {
                 // Wait random delay uniformly distributed between 0 and 400 ms
                 try {
                     Thread.sleep(Utils.getRandomTime(Globals.MAX_PUTCHUNK_WAITING_TIME));
@@ -64,18 +73,19 @@ public class BackupInitiator extends ProtocolInitiator {
             e.printStackTrace();
         }
     }
+    */
 
-    private boolean confirmStoredMessages(ArrayList<ChunkMessage> chunkList) {
+    private boolean confirmStoredMessages(ArrayList<Message> chunkList, int waitTime) {
         try {
             //TODO: remove sleeps
-            Thread.sleep(1000);
+            Thread.sleep(waitTime);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         for(int i = 0; i < chunkList.size(); i++) {
             // if degree is satisfied, remove from list
-            ChunkMessage chunk = chunkList.get(i);
+            Message chunk = chunkList.get(i);
             if (peer.getController().getChunkReplicationDegree(chunk) >= chunk.getRepDegree()) {
                 chunkList.remove(chunk);
                 i--;

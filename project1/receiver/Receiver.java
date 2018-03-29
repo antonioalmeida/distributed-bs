@@ -65,9 +65,7 @@ public class Receiver {
     }
 
     public void sendMessage(Message message) {
-        System.out.println("Sending message");
         byte[] rbuf = message.buildMessagePacket();
-        System.out.println("Size :" + rbuf.length);
 
         try {
             this.socket.send(new DatagramPacket(rbuf, rbuf.length, address, port));

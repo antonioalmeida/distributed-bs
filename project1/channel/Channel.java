@@ -33,7 +33,6 @@ public class Channel {
 
     public void sendMessage(Message message) throws IOException {
         byte[] rbuf = message.buildMessagePacket();
-        System.out.println("Size :" + rbuf.length);
         this.socket.send(new DatagramPacket(rbuf, rbuf.length, address, port));
     }
 
