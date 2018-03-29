@@ -4,7 +4,7 @@ import utils.Globals;
 
 import java.lang.StringBuilder;
 
-public class Message {
+public class Message implements Comparable {
     public static String CRLF = "\r\n";
 
     protected MessageType type;
@@ -217,5 +217,10 @@ public class Message {
 
     public byte[] getBody() {
         return body;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return this.chunkNr - ((Message) o).getChunkIndex();
     }
 }

@@ -29,19 +29,22 @@ public class RestoreInitiator extends ProtocolInitiator {
             return;
         }
 
-        int chunkAmmout = peer.getController().getBackedUpFileChunkAmount(filePath);
-        if(chunkAmmout == 0) {
-            System.out.println("Restore Error: error retrieving chunk ammount");
+        int chunkAmount = peer.getController().getBackedUpFileChunkAmount(filePath);
+        if(chunkAmount == 0) {
+            System.out.println("Restore Error: error retrieving chunk ammount.");
             return;
         }
 
         ArrayList<Message> getChunkList = new ArrayList<>();
-        for(int i = 0; i < chunkAmmout; i++) {
+        for(int i = 0; i < chunkAmount; i++) {
             getChunkList.add(new GetChunkMessage("1.0", peer.getPeerID(), fileID, i));
         }
 
-        sendMessages(getChunkList, MAX_GETCHUNK_DELAY_TIME);
-    }
+        peer.getController().addToRestoringFiles(fileID, chunkAmount);
+        System.out.println("Restoring file with " + chunkAmount + " chunks");
 
+        sendMessages(getChunkList, MAX_GETCHUNK_DELAY_TIME);
+
+    }
 
 }

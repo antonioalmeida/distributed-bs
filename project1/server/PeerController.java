@@ -8,7 +8,9 @@ import utils.Globals;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Created by antonioalmeida on 27/03/2018.
@@ -36,6 +38,15 @@ public class PeerController {
     // <fileName, (fileID, nChunks)>
     private ConcurrentHashMap<String, Pair<String, Integer>> backedUpFiles;
 
+    // files the peer is currently restoring
+    // <fileID, fileChunks[]>
+    private ConcurrentHashMap<String, ConcurrentSkipListSet<Message>> restoringFiles;
+
+    // chunk ammount of the files the peer is currently restoring
+    // <fileID, chunkAmmount>
+    //TODO: find another way, this is redundant
+    private ConcurrentHashMap<String, Integer> restoringFilesChunkAmmout;
+
     public PeerController(Peer peer, String MCAddress, int MCPort, String MDBAddress, int MDBPort, String MDRAddress, int MDRPort) {
         this.peer = peer;
 
@@ -50,9 +61,11 @@ public class PeerController {
             e.printStackTrace();
         }
 
-        storedChunks = new ConcurrentHashMap<String, ArrayList<Integer>>();
-        chunksReplicationDegree = new ConcurrentHashMap<Pair<String, Integer>, Integer>();
-        backedUpFiles = new ConcurrentHashMap<String, Pair<String, Integer>>();
+        storedChunks = new ConcurrentHashMap<>();
+        chunksReplicationDegree = new ConcurrentHashMap<>();
+        backedUpFiles = new ConcurrentHashMap<>();
+        restoringFiles = new ConcurrentHashMap<>();
+        restoringFilesChunkAmmout = new ConcurrentHashMap<>();
 
         fileSystem = new FileSystem(peer, Globals.MAX_PEER_STORAGE, Globals.PEER_FILESYSTEM_DIR + "/" + peer.getPeerID());
     }
@@ -60,13 +73,21 @@ public class PeerController {
     public void handlePutchunkMessage(Message message) {
         System.out.println("Received Putchunk: " + message.getChunkIndex());
 
-        if(storedChunks.containsKey(message.getFileID()) && storedChunks.get(message.getFileID()).contains(message.getChunkIndex())) {
-            System.out.println("Already stored chunk");
-            return;
-        }
+        if(!storedChunks.containsKey(message.getFileID()))
+            storedChunks.putIfAbsent(message.getFileID(), new ArrayList<>());
 
-        if (!this.fileSystem.storeChunk(message))
-            System.out.println("Not enough space to save chunk " + message.getChunkIndex() + " of file " + message.getFileID());
+        // check if chunk is already stored
+        if(!storedChunks.get(message.getFileID()).contains(message.getChunkIndex())) {
+
+            if (!this.fileSystem.storeChunk(message))
+                System.out.println("Not enough space to save chunk " + message.getChunkIndex() + " of file " + message.getFileID());
+
+            ArrayList<Integer> fileStoredChunks = storedChunks.get(message.getFileID());
+            fileStoredChunks.add(message.getChunkIndex());
+            storedChunks.put(message.getFileID(), fileStoredChunks);
+        }
+        else
+            System.out.println("Already stored chunk, sending STORED anyway.");
 
         Message storedMessage = new StoredMessage(message.getVersion(), peer.getPeerID(), message.getFileID(), message.getChunkIndex());
 
@@ -96,6 +117,18 @@ public class PeerController {
 
     public void handleChunkMessage(Message message) {
         System.out.println("Received Chunk Message: " + message.getChunkIndex());
+
+        // Not restoring this file
+        if(!restoringFiles.containsKey(message.getFileID()))
+            return;
+
+        ConcurrentSkipListSet<Message> fileRestoredChunks = restoringFiles.get(message.getFileID());
+        fileRestoredChunks.add(message);
+
+        restoringFiles.put(message.getFileID(), fileRestoredChunks);
+
+        if(fileRestoredChunks.size() == restoringFilesChunkAmmout.get(message.getFileID()))
+            System.out.println("Restored Success: all chunks received. " + fileRestoredChunks.size() + " - " + restoringFilesChunkAmmout.get(message.getFileID()));
     }
 
     public int getChunkReplicationDegree(Message chunk) {
@@ -121,6 +154,11 @@ public class PeerController {
 
         Pair<String, Integer> fileInfo = backedUpFiles.get(filePath);
         return fileInfo.getValue();
+    }
+
+    public void addToRestoringFiles(String fileID, int chunkAmount) {
+        restoringFiles.putIfAbsent(fileID, new ConcurrentSkipListSet<>());
+        restoringFilesChunkAmmout.putIfAbsent(fileID, chunkAmount);
     }
 
 
