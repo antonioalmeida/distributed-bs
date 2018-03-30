@@ -16,7 +16,10 @@ public class TestApp {
 
         String host = (args.length < 1) ? null : args[0];
         RemoteService stub = initApp(host);
+
+        //only one of the following will be used
         String filePath = args[2];
+        int reclaimSpace;
 
         switch(args[1]) {
             case "backup":
@@ -27,6 +30,10 @@ public class TestApp {
                 break;
             case "delete":
                 stub.deleteFile(filePath);
+                break;
+            case "reclaim":
+                reclaimSpace = Integer.parseInt(args[2]);
+                stub.reclaimSpace(reclaimSpace);
                 break;
         }
     }

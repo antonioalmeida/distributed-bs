@@ -39,6 +39,10 @@ public class BackupInitiator extends ProtocolInitiator {
 
         int tries = 0;
         int waitTime = 500; // initially 500 so in first iteration it doubles to 1000
+
+        for(Message chunk : chunkList)
+            peer.getController().initBackedUpChunksInfo(chunk);
+
         do {
             sendMessages(chunkList, MAX_PUTCHUNK_DELAY_TIME);
             tries++; waitTime *= 2;
@@ -65,7 +69,7 @@ public class BackupInitiator extends ProtocolInitiator {
         for(int i = 0; i < chunkList.size(); i++) {
             // if degree is satisfied, remove from list
             Message chunk = chunkList.get(i);
-            if (peer.getController().getChunkReplicationDegree(chunk) >= chunk.getRepDegree()) {
+            if (peer.getController().getBackedUpChunkRepDegree(chunk) >= chunk.getRepDegree()) {
                 chunkList.remove(chunk);
                 i--;
             }

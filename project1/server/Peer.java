@@ -1,10 +1,7 @@
 package server;
 
 import channel.*;
-import protocol.BackupInitiator;
-import protocol.DeleteInitiator;
-import protocol.ProtocolInitiator;
-import protocol.RestoreInitiator;
+import protocol.*;
 import receiver.ControlReceiver;
 import rmi.RemoteService;
 
@@ -103,12 +100,6 @@ public class Peer implements RemoteService {
     }
 
     @Override
-    public String test() throws RemoteException {
-        System.out.println("Testing RMI");
-        return "Testing RMI";
-    }
-
-    @Override
     public void backupFile(String filePath, int replicationDegree) throws RemoteException{
         ProtocolInitiator backupInstance = new BackupInitiator(this, filePath, replicationDegree, MDB);
         new Thread(backupInstance).start();
@@ -124,5 +115,11 @@ public class Peer implements RemoteService {
     public void deleteFile(String filePath) throws RemoteException {
         ProtocolInitiator deleteInstance = new DeleteInitiator(this, filePath, MC);
         new Thread(deleteInstance).start();
+    }
+
+    @Override
+    public void reclaimSpace(long space) throws RemoteException {
+        ProtocolInitiator reclaimInstance = new ReclaimInitiator(this, space);
+        new Thread(reclaimInstance).start();
     }
 }

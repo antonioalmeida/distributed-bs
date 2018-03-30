@@ -89,15 +89,22 @@ public class FileSystem {
         System.out.println("File " + filePath + " restored successfully");
     }
 
-    public synchronized void deleteChunk(String fileID, int chunkIndex) {
+    public synchronized void deleteChunk(String fileID, int chunkIndex, boolean updateMaxStorage) {
         Path path = Paths.get(this.backupDirectory+"/"+fileID+"_"+chunkIndex);
+        long savedStorage = 0;
 
         try {
-            if(Files.exists(path))
+            if(Files.exists(path)) {
+                savedStorage = Files.size(path);
                 Files.delete(path);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        usedStorage -= savedStorage;
+        if(updateMaxStorage)
+            maxStorage -= savedStorage;
     }
 
     private void initDirectories() {
@@ -117,5 +124,9 @@ public class FileSystem {
 
     private boolean hasFreeSpace(long size) {
         return usedStorage + size > maxStorage;
+    }
+
+    public long getUsedStorage() {
+        return usedStorage;
     }
 }

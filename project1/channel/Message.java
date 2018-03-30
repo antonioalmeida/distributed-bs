@@ -20,7 +20,7 @@ public class Message implements Comparable {
     //Processes a message's header line
     public void processHeader(String str) {
       String[] header = str.split("\\s+");
-      switch(header[0]){
+      switch(header[0]) {
           case "PUTCHUNK":
               this.type = MessageType.PUTCHUNK;
               this.repDegree = Integer.parseInt(header[5]);
