@@ -28,8 +28,6 @@ public abstract class ProtocolInitiator implements Runnable {
                 Thread.sleep(Utils.getRandomTime(maxDelayTime));
                 this.channel.sendMessage(message);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

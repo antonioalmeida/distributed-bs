@@ -2,6 +2,7 @@ package server;
 
 import channel.*;
 import protocol.BackupInitiator;
+import protocol.DeleteInitiator;
 import protocol.ProtocolInitiator;
 import protocol.RestoreInitiator;
 import receiver.ControlReceiver;
@@ -117,5 +118,11 @@ public class Peer implements RemoteService {
     public void recoverFile(String filePath) throws RemoteException {
         ProtocolInitiator recoverInstance = new RestoreInitiator(this, filePath, MC);
         new Thread(recoverInstance).start();
+    }
+
+    @Override
+    public void deleteFile(String filePath) throws RemoteException {
+        ProtocolInitiator deleteInstance = new DeleteInitiator(this, filePath, MC);
+        new Thread(deleteInstance).start();
     }
 }

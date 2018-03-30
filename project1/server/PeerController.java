@@ -134,10 +134,30 @@ public class PeerController {
         restoringFiles.put(message.getFileID(), fileRestoredChunks);
 
         int fileChunkAmount = restoringFilesInfo.get(message.getFileID()).getValue();
+
+        // stored all the file's chunks
         if(fileRestoredChunks.size() == fileChunkAmount) {
-            System.out.println("Restored Success: all chunks received.");
             saveRestoredFile(message.getFileID());
+
+            // restoring complete
+            restoringFiles.remove(message.getFileID());
+            restoringFilesInfo.remove(message.getFileID());
         }
+    }
+
+    public void handleDeleteMessage(Message message) {
+        System.out.println("Received Delete Message");
+
+        // peer doesn't have this chunk
+        if(!storedChunks.containsKey(message.getFileID()))
+            return;
+
+        ArrayList<Integer> fileChunks = storedChunks.get(message.getFileID());
+        for(int chunk : fileChunks)
+            fileSystem.deleteChunk(message.getFileID(), chunk);
+
+        storedChunks.remove(message.getFileID());
+        System.out.println("Delete Success: file deleted.");
     }
 
     public int getChunkReplicationDegree(Message chunk) {
@@ -170,27 +190,12 @@ public class PeerController {
         restoringFilesInfo.putIfAbsent(fileID, new Pair<String, Integer>(filePath, chunkAmount));
     }
 
-
-    /*
-    public ArrayList<Ch> getStoredChunksByFileID(String fileID) {
-        // chunk is not stored in this peer
-        if(!storedChunks.containsKey(fileID))
-            return null;
-
-        ArrayList<Integer> chunkIndexList = storedChunks.get(fileID);
-        ArrayList<> chunkList = new ArrayList<>();
-
-        for(index : chunkIndexList) {
-           chunkIndexList.add(fileSystem.getC)
-        }
-    }
-    */
-
     public void saveRestoredFile(String fileID) {
         byte[] fileBody = mergeRestoredFile(fileID);
         String filePath = restoringFilesInfo.get(fileID).getKey();
 
         fileSystem.saveFile(filePath, fileBody);
+
     }
 
     public byte[] mergeRestoredFile(String fileID) {

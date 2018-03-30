@@ -44,6 +44,9 @@ public class Dispatcher {
                 case CHUNK:
                     controller.handleChunkMessage(message);
                     break;
+                case DELETE:
+                    controller.handleDeleteMessage(message);
+                    break;
                 default:
                     System.out.println("No valid type");
             }

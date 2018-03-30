@@ -13,4 +13,6 @@ public interface RemoteService extends Remote {
     void backupFile(String filePath, int replicationDegree) throws RemoteException;
 
     void recoverFile(String filePath) throws RemoteException;
+
+    void deleteFile(String filePath) throws RemoteException;
 }

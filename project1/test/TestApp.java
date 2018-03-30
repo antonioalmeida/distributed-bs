@@ -25,6 +25,9 @@ public class TestApp {
             case "restore":
                 stub.recoverFile(filePath);
                 break;
+            case "delete":
+                stub.deleteFile(filePath);
+                break;
         }
     }
 

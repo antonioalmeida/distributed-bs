@@ -31,9 +31,13 @@ public class Channel {
         this.socket.send(new DatagramPacket(rbuf, rbuf.length, address, port));
     }
 
-    public void sendMessage(Message message) throws IOException {
+    public void sendMessage(Message message) {
         byte[] rbuf = message.buildMessagePacket();
-        this.socket.send(new DatagramPacket(rbuf, rbuf.length, address, port));
+        try {
+            this.socket.send(new DatagramPacket(rbuf, rbuf.length, address, port));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

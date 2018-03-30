@@ -89,6 +89,17 @@ public class FileSystem {
         System.out.println("File " + filePath + " restored successfully");
     }
 
+    public synchronized void deleteChunk(String fileID, int chunkIndex) {
+        Path path = Paths.get(this.backupDirectory+"/"+fileID+"_"+chunkIndex);
+
+        try {
+            if(Files.exists(path))
+                Files.delete(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void initDirectories() {
         Path backupPath = Paths.get(this.backupDirectory);
         Path restorePath = Paths.get(this.restoreDirectory);

@@ -54,27 +54,6 @@ public class BackupInitiator extends ProtocolInitiator {
         System.out.println("File " + filePath + " backed up");
     }
 
-    /*
-    private void sendChunks(ArrayList<PutChunkMessage> chunkList) {
-        System.out.println(chunkList.get(0).getChunkIndex());
-        try {
-
-            for(PutChunkMessage chunk : chunkList) {
-                // Wait random delay uniformly distributed between 0 and 400 ms
-                try {
-                    Thread.sleep(Utils.getRandomTime(Globals.MAX_PUTCHUNK_WAITING_TIME));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                this.channel.sendMessage(chunk);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    */
-
     private boolean confirmStoredMessages(ArrayList<Message> chunkList, int waitTime) {
         try {
             //TODO: remove sleeps
