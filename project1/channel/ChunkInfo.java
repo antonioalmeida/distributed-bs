@@ -27,8 +27,16 @@ public class ChunkInfo implements Comparable {
         actualReplicationDegree++;
     }
 
+    public void decActualReplicationDegree() {
+        actualReplicationDegree--;
+    }
+
     public int getDegreeSatisfaction() {
         return actualReplicationDegree - desiredReplicationDegree;
+    }
+
+    public boolean isDegreeSatisfied() {
+        return actualReplicationDegree >= desiredReplicationDegree;
     }
 
     @Override

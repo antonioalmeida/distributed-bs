@@ -10,11 +10,16 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by antonioalmeida on 17/03/2018.
  */
 public class Peer implements RemoteService {
+
+    private static final int MAX_INITIATOR_THREADS = 50;
+
     private int peerID;
 
     private String rmiAccessPoint;
@@ -33,6 +38,8 @@ public class Peer implements RemoteService {
     private Channel MDR;
 
     private PeerController controller;
+
+    private ExecutorService threadPool = Executors.newFixedThreadPool(MAX_INITIATOR_THREADS);
 
     // server.Peer args
     //<protocol version> <server id> <service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> <MDBReceiver port> <MDRReceiver address> <MDRReceiver port>
@@ -102,24 +109,24 @@ public class Peer implements RemoteService {
     @Override
     public void backupFile(String filePath, int replicationDegree) throws RemoteException{
         ProtocolInitiator backupInstance = new BackupInitiator(this, filePath, replicationDegree, MDB);
-        new Thread(backupInstance).start();
+        threadPool.submit(backupInstance);
     }
 
     @Override
     public void recoverFile(String filePath) throws RemoteException {
         ProtocolInitiator recoverInstance = new RestoreInitiator(this, filePath, MC);
-        new Thread(recoverInstance).start();
+        threadPool.submit(recoverInstance);
     }
 
     @Override
     public void deleteFile(String filePath) throws RemoteException {
         ProtocolInitiator deleteInstance = new DeleteInitiator(this, filePath, MC);
-        new Thread(deleteInstance).start();
+        threadPool.submit(deleteInstance);
     }
 
     @Override
     public void reclaimSpace(long space) throws RemoteException {
         ProtocolInitiator reclaimInstance = new ReclaimInitiator(this, space);
-        new Thread(reclaimInstance).start();
+        threadPool.submit(reclaimInstance);
     }
 }

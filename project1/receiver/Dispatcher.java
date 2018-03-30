@@ -47,6 +47,9 @@ public class Dispatcher {
                 case DELETE:
                     controller.handleDeleteMessage(message);
                     break;
+                case REMOVED:
+                    controller.handleRemovedMessage(message);
+                    break;
                 default:
                     System.out.println("No valid type");
             }

@@ -181,6 +181,20 @@ public class PeerController {
         System.out.println("Delete Success: file deleted.");
     }
 
+    public void handleRemovedMessage(Message message) {
+        System.out.println("Received Removed Message: " + message.getChunkIndex());
+
+        Pair<String, Integer> key = new Pair(message.getFileID(), message.getChunkIndex());
+        if(backedUpChunksInfo.containsKey(key)) {
+            ChunkInfo chunkInfo = backedUpChunksInfo.get(key);
+            chunkInfo.decActualReplicationDegree();
+
+            if(!chunkInfo.isDegreeSatisfied()) {
+                // wait random between 0 and 400ms
+            }
+        }
+    }
+
     public boolean reclaimSpace(long targetSpace) {
         while(fileSystem.getUsedStorage() > targetSpace) {
             Pair<String, Integer> toDelete = getMostSatisfiedChunk();
@@ -191,8 +205,14 @@ public class PeerController {
                 return fileSystem.getUsedStorage() < targetSpace;
             }
 
-            System.out.println("Deleting " + toDelete.getKey() + " - " + toDelete.getValue());
-            deleteChunk(toDelete.getKey(), toDelete.getValue(), true);
+            String fileID = toDelete.getKey();
+            int chunkIndex = toDelete.getValue();
+
+            System.out.println("Deleting " + fileID + " - " + chunkIndex);
+            deleteChunk(fileID, chunkIndex, true);
+
+            Message removedMessage = new RemovedMessage("1.0", peer.getPeerID(), fileID, chunkIndex);
+            MCReceiver.sendMessage(removedMessage);
         }
 
         return true;
