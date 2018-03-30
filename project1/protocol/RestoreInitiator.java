@@ -40,11 +40,10 @@ public class RestoreInitiator extends ProtocolInitiator {
             getChunkList.add(new GetChunkMessage("1.0", peer.getPeerID(), fileID, i));
         }
 
-        peer.getController().addToRestoringFiles(fileID, chunkAmount);
+        peer.getController().addToRestoringFiles(fileID, filePath, chunkAmount);
         System.out.println("Restoring file with " + chunkAmount + " chunks");
 
         sendMessages(getChunkList, MAX_GETCHUNK_DELAY_TIME);
-
     }
 
 }

@@ -16,6 +16,7 @@ import java.io.IOException;
 public class FileSystem {
 
     private static final String BACKUP_DIRECTORY = "backup";
+    private static final String RESTORE_DIRECTORY = "restore";
 
     private long maxStorage;
 
@@ -25,6 +26,7 @@ public class FileSystem {
 
     private String baseDirectory;
     private String backupDirectory;
+    private String restoreDirectory;
 
     public FileSystem(Peer peer, long maxStorage, String baseDirectory) {
         this.maxStorage = maxStorage;
@@ -32,6 +34,7 @@ public class FileSystem {
         this.peer = peer;
 
         this.backupDirectory = baseDirectory + BACKUP_DIRECTORY;
+        this.restoreDirectory = baseDirectory + RESTORE_DIRECTORY;
 
         initDirectories();
     }
@@ -70,15 +73,35 @@ public class FileSystem {
         return chunk;
     }
 
+    public void saveFile(String filePath, byte[] body) {
+        Path path = Paths.get(this.restoreDirectory + "/" + filePath);
+        System.out.println("FULL PATH: " + path.toAbsolutePath());
+
+        try {
+            if(!Files.exists(path))
+                Files.createFile(path);
+
+            Files.write(path, body);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("File " + filePath + " restored successfully");
+    }
+
     private void initDirectories() {
         Path backupPath = Paths.get(this.backupDirectory);
+        Path restorePath = Paths.get(this.restoreDirectory);
 
-        if(!Files.exists(backupPath))
-            try {
+        try {
+            if (!Files.exists(backupPath))
                 Files.createDirectories(backupPath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            if (!Files.exists(restorePath))
+                Files.createDirectories(restorePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean hasFreeSpace(long size) {

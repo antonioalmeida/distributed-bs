@@ -63,7 +63,6 @@ public class Peer implements RemoteService {
         this.MC = new Channel(args[3], Integer.parseInt(args[4]));
         this.MDB = new Channel(args[5], Integer.parseInt(args[6]));
         this.MDR = new Channel(args[7], Integer.parseInt(args[8]));
-
     }
 
     private static boolean checkArgs(final String args[]) {

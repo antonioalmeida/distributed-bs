@@ -6,6 +6,8 @@ import receiver.*;
 import storage.FileSystem;
 import utils.Globals;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,14 +40,17 @@ public class PeerController {
     // <fileName, (fileID, nChunks)>
     private ConcurrentHashMap<String, Pair<String, Integer>> backedUpFiles;
 
-    // files the peer is currently restoring
+    // chunks of the files the peer is currently restoring
     // <fileID, fileChunks[]>
     private ConcurrentHashMap<String, ConcurrentSkipListSet<Message>> restoringFiles;
 
     // chunk ammount of the files the peer is currently restoring
     // <fileID, chunkAmmount>
     //TODO: find another way, this is redundant
-    private ConcurrentHashMap<String, Integer> restoringFilesChunkAmmout;
+
+    // useful information of the files the peer is currently restoring
+    // <fileID, Pair<fileName, chunkAmount>
+    private ConcurrentHashMap<String, Pair<String, Integer>> restoringFilesInfo;
 
     public PeerController(Peer peer, String MCAddress, int MCPort, String MDBAddress, int MDBPort, String MDRAddress, int MDRPort) {
         this.peer = peer;
@@ -65,7 +70,8 @@ public class PeerController {
         chunksReplicationDegree = new ConcurrentHashMap<>();
         backedUpFiles = new ConcurrentHashMap<>();
         restoringFiles = new ConcurrentHashMap<>();
-        restoringFilesChunkAmmout = new ConcurrentHashMap<>();
+
+        restoringFilesInfo = new ConcurrentHashMap<>();
 
         fileSystem = new FileSystem(peer, Globals.MAX_PEER_STORAGE, Globals.PEER_FILESYSTEM_DIR + "/" + peer.getPeerID());
     }
@@ -127,8 +133,11 @@ public class PeerController {
 
         restoringFiles.put(message.getFileID(), fileRestoredChunks);
 
-        if(fileRestoredChunks.size() == restoringFilesChunkAmmout.get(message.getFileID()))
-            System.out.println("Restored Success: all chunks received. " + fileRestoredChunks.size() + " - " + restoringFilesChunkAmmout.get(message.getFileID()));
+        int fileChunkAmount = restoringFilesInfo.get(message.getFileID()).getValue();
+        if(fileRestoredChunks.size() == fileChunkAmount) {
+            System.out.println("Restored Success: all chunks received.");
+            saveRestoredFile(message.getFileID());
+        }
     }
 
     public int getChunkReplicationDegree(Message chunk) {
@@ -156,9 +165,9 @@ public class PeerController {
         return fileInfo.getValue();
     }
 
-    public void addToRestoringFiles(String fileID, int chunkAmount) {
+    public void addToRestoringFiles(String fileID, String filePath, int chunkAmount) {
         restoringFiles.putIfAbsent(fileID, new ConcurrentSkipListSet<>());
-        restoringFilesChunkAmmout.putIfAbsent(fileID, chunkAmount);
+        restoringFilesInfo.putIfAbsent(fileID, new Pair<String, Integer>(filePath, chunkAmount));
     }
 
 
@@ -176,5 +185,30 @@ public class PeerController {
         }
     }
     */
+
+    public void saveRestoredFile(String fileID) {
+        byte[] fileBody = mergeRestoredFile(fileID);
+        String filePath = restoringFilesInfo.get(fileID).getKey();
+
+        fileSystem.saveFile(filePath, fileBody);
+    }
+
+    public byte[] mergeRestoredFile(String fileID) {
+        // get file's chunks
+        ConcurrentSkipListSet<Message> fileChunks = restoringFiles.get(fileID);
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        try {
+            for(Message chunk : fileChunks)
+                stream.write(chunk.getBody());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return stream.toByteArray();
+    }
+
+
 
 }
