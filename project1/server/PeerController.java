@@ -138,6 +138,14 @@ public class PeerController {
         String fileID = message.getFileID();
         int chunkIndex = message.getChunkIndex();
 
+        // if peer doesn't have any chunks from this file, return
+        if(!storedChunks.contains(fileID))
+            return;
+
+        // if peer doesn't have this chunks, return
+        if(!storedChunks.get(fileID).contains(chunkIndex))
+            return;
+
         Message chunkMessage = fileSystem.retrieveChunk(fileID, chunkIndex);
         MDRReceiver.sendWithRandomDelay(0, Globals.MAX_CHUNK_WAITING_TIME, chunkMessage);
     }

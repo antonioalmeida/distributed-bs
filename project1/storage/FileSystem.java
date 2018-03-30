@@ -73,7 +73,7 @@ public class FileSystem {
         return chunk;
     }
 
-    public void saveFile(String filePath, byte[] body) {
+    public synchronized void saveFile(String filePath, byte[] body) {
         Path path = Paths.get(this.restoreDirectory + "/" + filePath);
         System.out.println("FULL PATH: " + path.toAbsolutePath());
 
