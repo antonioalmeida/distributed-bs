@@ -139,7 +139,7 @@ public class PeerController {
         int chunkIndex = message.getChunkIndex();
 
         // if peer doesn't have any chunks from this file, return
-        if(!storedChunks.contains(fileID))
+        if(!storedChunks.containsKey(fileID))
             return;
 
         // if peer doesn't have this chunks, return
