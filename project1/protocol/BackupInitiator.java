@@ -18,7 +18,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  */
 public class BackupInitiator extends ProtocolInitiator {
 
-    private static final int MAX_PUTCHUNK_DELAY_TIME = 100;
+    //TODO: remove this
+    private static final int MAX_PUTCHUNK_DELAY_TIME = 0;
 
     private String filePath;
     private int replicationDegree;

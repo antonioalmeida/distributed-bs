@@ -19,11 +19,12 @@ public class TestApp {
 
         //only one of the following will be used
         String filePath = args[2];
-        int reclaimSpace;
+        int extraArg;
 
         switch(args[1]) {
             case "backup":
-                stub.backupFile(filePath, 1);
+                extraArg = Integer.parseInt(args[2]);
+                stub.backupFile(filePath, extraArg);
                 break;
             case "restore":
                 stub.recoverFile(filePath);
@@ -32,8 +33,8 @@ public class TestApp {
                 stub.deleteFile(filePath);
                 break;
             case "reclaim":
-                reclaimSpace = Integer.parseInt(args[2]);
-                stub.reclaimSpace(reclaimSpace);
+                extraArg = Integer.parseInt(args[2]);
+                stub.reclaimSpace(extraArg);
                 break;
         }
     }
