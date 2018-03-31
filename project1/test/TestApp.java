@@ -36,6 +36,9 @@ public class TestApp {
                 extraArg = Integer.parseInt(args[2]);
                 stub.reclaimSpace(extraArg);
                 break;
+            case "state":
+                stub.retrieveState();
+                break;
         }
     }
 

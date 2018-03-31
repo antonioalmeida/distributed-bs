@@ -27,6 +27,7 @@ public abstract class ProtocolInitiator implements Runnable {
             for(Message message : messageList) {
                 Thread.sleep(Utils.getRandomTime(maxDelayTime));
                 this.channel.sendMessage(message);
+                System.out.println("Sent putchunk message: " + message.getChunkIndex());
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

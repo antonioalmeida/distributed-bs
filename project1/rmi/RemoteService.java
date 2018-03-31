@@ -15,4 +15,6 @@ public interface RemoteService extends Remote {
     void deleteFile(String filePath) throws RemoteException;
 
     void reclaimSpace(long space) throws RemoteException;
+
+    void retrieveState() throws RemoteException;
 }

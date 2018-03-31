@@ -136,4 +136,9 @@ public class Peer implements RemoteService {
         ProtocolInitiator reclaimInstance = new ReclaimInitiator(this, space);
         threadPool.submit(reclaimInstance);
     }
+
+    @Override
+    public void retrieveState() throws RemoteException {
+        System.out.println(controller);
+    }
 }

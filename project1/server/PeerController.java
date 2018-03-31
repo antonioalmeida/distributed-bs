@@ -84,7 +84,7 @@ public class PeerController {
         storedChunks.putIfAbsent(message.getFileID(), new ArrayList<>());
 
         Pair<String, Integer> chunkInfoKey = new Pair<>(message.getFileID(), message.getChunkIndex());
-        storedChunksInfo.putIfAbsent(chunkInfoKey, new ChunkInfo(message.getRepDegree(), 0));
+        storedChunksInfo.putIfAbsent(chunkInfoKey, new ChunkInfo(message.getRepDegree(), 1));
 
         // check if chunk is already stored
         if(!storedChunks.get(message.getFileID()).contains(message.getChunkIndex())) {
@@ -318,6 +318,42 @@ public class PeerController {
         return stream.toByteArray();
     }
 
+    @Override
+    public String toString() {
+        StringBuilder output = new StringBuilder();
+        output.append("Current Peer state:\n");
 
+        output.append("Files whose backup was initiated by this peer:\n");
+        for (Map.Entry<String, Pair<String, Integer>> entry : backedUpFiles.entrySet()) {
+            output.append("\tPathname = " + entry.getKey() + ", fileID = " + entry.getValue().getKey()+"\n");
+
+            Pair<String, Integer> firstChunkInfo = new Pair<>(entry.getValue().getKey(), 0);
+            output.append("\t\tDesired replication degree: " + backedUpChunksInfo.get(firstChunkInfo).getDesiredReplicationDegree() + "\n");
+            output.append("\t\tChunks:\n");
+
+            for(int chunkNr = 0; chunkNr < entry.getValue().getValue(); ++chunkNr) {
+                Pair<String, Integer> chunkEntry = new Pair<>(entry.getValue().getKey(), chunkNr);
+                output.append("\t\t\tChunk nr. " + chunkNr + " | Perceived replication degree: " + backedUpChunksInfo.get(chunkEntry).getActualReplicationDegree() + "\n");
+            }
+            output.append("\n");
+        }
+
+        output.append("Chunks stored by this peer:\n");
+
+        for (Map.Entry<String, ArrayList<Integer>> entry : storedChunks.entrySet()) {
+            output.append("\tBacked up chunks of file with fileID " + entry.getKey() + ":\n");
+
+            for (int chunkNr : entry.getValue()) {
+                Pair<String, Integer> chunkEntry = new Pair<>(entry.getKey(), chunkNr);
+                //TODO: Add chunk size here
+                output.append("\t\tChunk nr. " + chunkNr + " | Perceived replication degree: " + storedChunksInfo.get(chunkEntry).getActualReplicationDegree() + "\n");
+            }
+            output.append("\n");
+        }
+
+        output.append("Max storage capacity (in kB): " + fileSystem.getMaxStorage() + "\n");
+        output.append("Current storage capacity used (in kB): " + fileSystem.getUsedStorage() + "\n");
+        return output.toString();
+    }
 
 }

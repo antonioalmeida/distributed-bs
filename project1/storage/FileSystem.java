@@ -129,4 +129,8 @@ public class FileSystem {
     public long getUsedStorage() {
         return usedStorage;
     }
+
+    public long getMaxStorage() {
+        return maxStorage;
+    }
 }

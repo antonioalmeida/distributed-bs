@@ -41,6 +41,7 @@ public class BackupInitiator extends ProtocolInitiator {
         int tries = 0;
         int waitTime = 500; // initially 500 so in first iteration it doubles to 1000
 
+        // notify peer to listen for these chunks' stored messages
         for(Message chunk : chunkList)
             peer.getController().initBackedUpChunksInfo(chunk);
 
