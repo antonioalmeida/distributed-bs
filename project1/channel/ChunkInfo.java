@@ -5,7 +5,7 @@ import java.util.Collections;
 /**
  * Created by antonioalmeida on 30/03/2018.
  */
-public class ChunkInfo implements Comparable {
+public class ChunkInfo implements Comparable<ChunkInfo> {
 
     private int desiredReplicationDegree;
     private int actualReplicationDegree;
@@ -40,7 +40,7 @@ public class ChunkInfo implements Comparable {
     }
 
     @Override
-    public int compareTo(Object o) {
-        return this.getDegreeSatisfaction() - ((ChunkInfo) o).getDegreeSatisfaction();
+    public int compareTo(ChunkInfo o) {
+        return this.getDegreeSatisfaction() - o.getDegreeSatisfaction();
     }
 }
