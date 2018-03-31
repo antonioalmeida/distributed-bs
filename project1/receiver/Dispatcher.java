@@ -23,9 +23,9 @@ public class Dispatcher {
         this.controller = controller;
     }
 
-    public void handleMessage(byte[] buf) {
+    public void handleMessage(byte[] buf, int size) {
         threadPool.submit(() -> {
-            Message message = new Message(buf);
+            Message message = new Message(buf, size);
 
             //Ignore messages from self
             if(message.getPeerID().equals(this.peerID))

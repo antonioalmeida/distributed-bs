@@ -62,7 +62,7 @@ public class FileSystem {
     public synchronized Message retrieveChunk(String fileID, int chunkIndex) {
         Path chunkPath = Paths.get(this.backupDirectory + "/"+fileID+"_"+chunkIndex);
 
-        byte[] buf = new byte[Globals.CHUNK_MAX_SIZE];
+        byte[] buf = null;
         try {
             buf = Files.readAllBytes(chunkPath);
         } catch (IOException e) {

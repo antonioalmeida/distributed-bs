@@ -42,16 +42,25 @@ public class ChunkCreator {
     }
 
     private void createChunks(File file) {
-
         try {
-            FileInputStream filestream = new FileInputStream(file);
-            BufferedInputStream bufferedfile = new BufferedInputStream(filestream);
+            FileInputStream fileStream = new FileInputStream(file);
+            BufferedInputStream bufferedFile = new BufferedInputStream(fileStream);
 
             for(int chunkIndex = 0; chunkIndex < this.nChunks; chunkIndex++) {
-                byte[] buf = new byte[Globals.CHUNK_MAX_SIZE];
-                int nr_bytes = bufferedfile.read(buf);
-                if(nr_bytes == -1) buf = new byte[0];
-                chunkList.add(new PutChunkMessage(this.version, buf, this.fileID, chunkIndex, this.replicationDegree, this.peerID));
+                byte[] tempBuf = new byte[Globals.CHUNK_MAX_SIZE];
+                byte[] finalBuf;
+
+                int nBytesRead = bufferedFile.read(tempBuf);
+
+                if(nBytesRead == -1)
+                    finalBuf = new byte[0];
+                else if(nBytesRead < Globals.CHUNK_MAX_SIZE)
+                    finalBuf = new byte[nBytesRead];
+                else
+                    finalBuf = new byte[Globals.CHUNK_MAX_SIZE];
+
+                System.arraycopy(tempBuf, 0, finalBuf, 0, finalBuf.length);
+                chunkList.add(new PutChunkMessage(this.version, finalBuf, this.fileID, chunkIndex, this.replicationDegree, this.peerID));
             }
 
         } catch (FileNotFoundException e) {

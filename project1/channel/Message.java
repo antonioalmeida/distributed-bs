@@ -62,22 +62,22 @@ public class Message implements Comparable {
     }
 
     //Processes a message given as a byte[] (directly from a DatagramPacket)
-    public Message(byte[] message) {
-      int headerLength = 0;
-      for (int i = 0; i < message.length; ++i) {
+    public Message(byte[] message, int size) {
+        int headerLength = 0;
+        for (int i = 0; i < message.length; ++i) {
             if((char)message[i] == '\r') { //TODO: Parse better
-              headerLength = i+4;
-              break;
+                headerLength = i+4;
+                break;
             }
-      }
+        }
 
-      String header = new String(message, 0, headerLength);
-      processHeader(header);
+        String header = new String(message, 0, headerLength);
+        processHeader(header);
 
-      //TODO: replace with proper body length calculation
-      this.body = new byte[Globals.CHUNK_MAX_SIZE];
-      System.arraycopy(message, headerLength, this.body, 0, Globals.CHUNK_MAX_SIZE);
-
+        //TODO: replace with proper body length calculation
+        int bodyLength = size - headerLength;
+        this.body = new byte[bodyLength];
+        System.arraycopy(message, headerLength, this.body, 0, bodyLength);
     }
 
     public Message(String version, Integer peerID, String fileID, byte[] body) {
