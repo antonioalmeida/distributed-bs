@@ -112,7 +112,7 @@ public class PeerController {
     public void handleStoredMessage(Message message) {
         System.out.println("Received Stored Message: " + message.getChunkIndex());
 
-        Pair key = new Pair<>(message.getFileID(), message.getChunkIndex());
+        Pair<String, Integer> key = new Pair<>(message.getFileID(), message.getChunkIndex());
         ChunkInfo chunkInfo;
 
         // if this chunk is from a file the peer
@@ -193,7 +193,7 @@ public class PeerController {
     public void handleRemovedMessage(Message message) {
         System.out.println("Received Removed Message: " + message.getChunkIndex());
 
-        Pair<String, Integer> key = new Pair(message.getFileID(), message.getChunkIndex());
+        Pair<String, Integer> key = new Pair<>(message.getFileID(), message.getChunkIndex());
         if(backedUpChunksInfo.containsKey(key)) {
             ChunkInfo chunkInfo = backedUpChunksInfo.get(key);
             chunkInfo.decActualReplicationDegree();
@@ -228,7 +228,7 @@ public class PeerController {
     }
 
     public void initBackedUpChunksInfo(Message chunk) {
-        Pair<String, Integer> key = new Pair(chunk.getFileID(), chunk.getChunkIndex());
+        Pair<String, Integer> key = new Pair<>(chunk.getFileID(), chunk.getChunkIndex());
         backedUpChunksInfo.putIfAbsent(key, new ChunkInfo(chunk.getRepDegree(), 0));
     }
 
@@ -243,7 +243,7 @@ public class PeerController {
     }
 
     public void addBackedUpFile(String filePath, String fileID, int chunkAmount) {
-        backedUpFiles.put(filePath, new Pair(fileID, chunkAmount));
+        backedUpFiles.put(filePath, new Pair<>(fileID, chunkAmount));
     }
 
     public String getBackedUpFileID(String filePath) {
@@ -292,7 +292,7 @@ public class PeerController {
 
     public void addToRestoringFiles(String fileID, String filePath, int chunkAmount) {
         restoringFiles.putIfAbsent(fileID, new ConcurrentSkipListSet<>());
-        restoringFilesInfo.putIfAbsent(fileID, new Pair<String, Integer>(filePath, chunkAmount));
+        restoringFilesInfo.putIfAbsent(fileID, new Pair<>(filePath, chunkAmount));
     }
 
     public void saveRestoredFile(String fileID) {

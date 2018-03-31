@@ -23,7 +23,7 @@ public class TestApp {
 
         switch(args[1]) {
             case "backup":
-                extraArg = Integer.parseInt(args[2]);
+                extraArg = Integer.parseInt(args[3]);
                 stub.backupFile(filePath, extraArg);
                 break;
             case "restore":
