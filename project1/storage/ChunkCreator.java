@@ -20,10 +20,12 @@ public class ChunkCreator {
     private String fileID;
     private int replicationDegree;
     private int peerID;
+    private String version;
 
-    public ChunkCreator(String filePath, int replicationDegree, int peerID) {
+    public ChunkCreator(String filePath, int replicationDegree, int peerID, String version) {
         this.replicationDegree = replicationDegree;
         this.peerID = peerID;
+        this.version = version;
 
         File file = new File(filePath);
         this.fileID = Utils.getFileID(file);
@@ -49,7 +51,7 @@ public class ChunkCreator {
                 byte[] buf = new byte[Globals.CHUNK_MAX_SIZE];
                 int nr_bytes = bufferedfile.read(buf);
                 if(nr_bytes == -1) buf = new byte[0];
-                chunkList.add(new PutChunkMessage(buf, this.fileID, chunkIndex, this.replicationDegree, this.peerID));
+                chunkList.add(new PutChunkMessage(this.version, buf, this.fileID, chunkIndex, this.replicationDegree, this.peerID));
             }
 
         } catch (FileNotFoundException e) {

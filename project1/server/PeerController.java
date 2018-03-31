@@ -101,6 +101,7 @@ public class PeerController {
         else
             System.out.println("Already stored chunk, sending STORED anyway.");
 
+        //TODO: Is it correct here to put the putchunk message version in our stored response??
         Message storedMessage = new StoredMessage(message.getVersion(), peer.getPeerID(), message.getFileID(), message.getChunkIndex());
 
         MCReceiver.sendWithRandomDelay(0, Globals.MAX_STORED_WAITING_TIME, storedMessage);
@@ -219,7 +220,7 @@ public class PeerController {
             System.out.println("Deleting " + fileID + " - " + chunkIndex);
             deleteChunk(fileID, chunkIndex, true);
 
-            Message removedMessage = new RemovedMessage("1.0", peer.getPeerID(), fileID, chunkIndex);
+            Message removedMessage = new RemovedMessage(peer.getProtocolVersion(), peer.getPeerID(), fileID, chunkIndex);
             MCReceiver.sendMessage(removedMessage);
         }
 

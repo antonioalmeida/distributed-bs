@@ -69,7 +69,7 @@ public class FileSystem {
             e.printStackTrace();
         }
 
-        Message chunk = new ChunkMessage("1.0", peer.getPeerID(), fileID, chunkIndex, buf);
+        Message chunk = new ChunkMessage(peer.getProtocolVersion(), peer.getPeerID(), fileID, chunkIndex, buf);
         return chunk;
     }
 

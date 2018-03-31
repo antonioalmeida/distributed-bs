@@ -21,6 +21,7 @@ public class Peer implements RemoteService {
     private static final int MAX_INITIATOR_THREADS = 50;
 
     private int peerID;
+    private String version;
 
     private String rmiAccessPoint;
 
@@ -52,6 +53,8 @@ public class Peer implements RemoteService {
     }
 
     private Peer(final String args[]) throws IOException {
+        System.out.println("Starting Peer with protocol version " + args[0]);
+        this.version = args[0];
         System.out.println("Starting Peer with ID " + args[1]);
         this.peerID = Integer.parseInt(args[1]);
 
@@ -96,6 +99,10 @@ public class Peer implements RemoteService {
             System.err.println("Server exception: " + e.toString());
             e.printStackTrace();
         }
+    }
+
+    public String getProtocolVersion() {
+        return version;
     }
 
     public int getPeerID() {

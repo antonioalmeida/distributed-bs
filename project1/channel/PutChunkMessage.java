@@ -5,8 +5,8 @@ package channel;
  */
 public class PutChunkMessage extends Message {
 
-    public PutChunkMessage(byte[] buf, String fileID, int chunkIndex, int replicationDegree, int peerID) {
-        super("1.0", peerID, fileID, buf);
+    public PutChunkMessage(String version, byte[] buf, String fileID, int chunkIndex, int replicationDegree, int peerID) {
+        super(version, peerID, fileID, buf);
 
         this.type = MessageType.PUTCHUNK;
         this.repDegree = replicationDegree;

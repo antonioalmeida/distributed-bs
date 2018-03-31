@@ -27,7 +27,7 @@ public class DeleteInitiator extends ProtocolInitiator {
         File file = new File(filePath);
         String fileID = Utils.getFileID(file);
 
-        Message message = new DeleteMessage("1.0", peer.getPeerID(), fileID);
+        Message message = new DeleteMessage(peer.getProtocolVersion(), peer.getPeerID(), fileID);
         channel.sendMessage(message);
     }
 }
