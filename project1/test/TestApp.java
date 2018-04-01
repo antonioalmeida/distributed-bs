@@ -14,9 +14,9 @@ import java.util.regex.Pattern;
  */
 public class TestApp {
 
-    private String host;
-    private int port;
-    private String name;
+    private String host = null;
+    private int port = 1099; //Default port
+    private String name = null;
 
     public static void main(final String args[]) throws RemoteException {
         //TODO: add input validation
@@ -76,12 +76,11 @@ public class TestApp {
         if(!m.matches())
             return false;
 
-        int nGroups = m.groupCount();
         this.host = m.group(1);
         this.name = m.group(3);
 
         // if port exists
-        if(nGroups == 3)
+        if(m.group(2) != null)
             this.port = Integer.parseInt(m.group(2));
 
         return true;
