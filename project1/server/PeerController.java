@@ -236,7 +236,7 @@ public class PeerController {
         if(!storedChunks.containsKey(fileID))
             return;
 
-        // if peer doesn't have this chunks, return
+        // if peer doesn't have this chunk, return
         if(!storedChunks.get(fileID).contains(chunkIndex))
             return;
 

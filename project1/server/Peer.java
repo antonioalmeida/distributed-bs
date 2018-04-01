@@ -2,7 +2,6 @@ package server;
 
 import channel.*;
 import protocol.*;
-import receiver.ControlReceiver;
 import rmi.RemoteService;
 
 import java.io.IOException;
