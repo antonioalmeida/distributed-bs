@@ -1,9 +1,9 @@
 package protocol;
 
-import channel.Message;
-import channel.MessageType;
+import message.Message;
+import message.MessageType;
 import receiver.Receiver;
-import server.PeerController;
+import peer.PeerController;
 import utils.Globals;
 
 /**

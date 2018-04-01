@@ -1,4 +1,4 @@
-package channel;
+package message;
 
 import java.util.ArrayList;
 

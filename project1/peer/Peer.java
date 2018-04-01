@@ -1,6 +1,6 @@
-package server;
+package peer;
 
-import channel.Channel;
+import receiver.Channel;
 import protocol.*;
 import rmi.RemoteService;
 
@@ -47,8 +47,8 @@ public class Peer implements RemoteService {
      * @param args the args
      * @throws IOException the io exception
      */
-// server.Peer args
-    //<protocol version> <server id> <service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> <MDBReceiver port> <MDRReceiver address> <MDRReceiver port>
+// peer.Peer args
+    //<protocol version> <peer id> <service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> <MDBReceiver port> <MDRReceiver address> <MDRReceiver port>
     public static void main(final String args[]) throws IOException {
         Peer peer;
         if(!checkArgs(args))
@@ -88,7 +88,7 @@ public class Peer implements RemoteService {
     private static void printUsage() {
         //TODO: add thorough usage information
         System.out.println("Usage:");
-        System.out.println("Java server.Peer : <protocol version> <server id> <service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> <MDBReceiver port> <MDRReceiver address> <MDRReceiver port>");
+        System.out.println("Java peer.Peer : <protocol version> <peer id> <service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> <MDBReceiver port> <MDRReceiver address> <MDRReceiver port>");
     }
 
     /**

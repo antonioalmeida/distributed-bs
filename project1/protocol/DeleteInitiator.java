@@ -1,9 +1,9 @@
 package protocol;
 
-import channel.Channel;
-import channel.DeleteMessage;
-import channel.Message;
-import server.Peer;
+import receiver.Channel;
+import message.DeleteMessage;
+import message.Message;
+import peer.Peer;
 import utils.Utils;
 
 import java.io.File;
@@ -20,7 +20,7 @@ public class DeleteInitiator extends ProtocolInitiator {
      *
      * @param peer     the peer
      * @param filePath the file path
-     * @param channel  the channel
+     * @param channel  the message
      */
     public DeleteInitiator(Peer peer, String filePath, Channel channel) {
         super(peer, channel);

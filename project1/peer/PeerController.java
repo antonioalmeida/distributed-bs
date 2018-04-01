@@ -1,9 +1,9 @@
-package server;
+package peer;
 
-import channel.ChunkInfo;
-import channel.Message;
-import channel.RemovedMessage;
-import channel.StoredMessage;
+import message.ChunkInfo;
+import message.Message;
+import message.RemovedMessage;
+import message.StoredMessage;
 import javafx.util.Pair;
 import protocol.SingleBackupInitiator;
 import receiver.Dispatcher;

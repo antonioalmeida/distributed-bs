@@ -1,7 +1,7 @@
 package storage;
 
-import channel.Message;
-import channel.PutChunkMessage;
+import message.Message;
+import message.PutChunkMessage;
 import utils.Globals;
 import utils.Utils;
 

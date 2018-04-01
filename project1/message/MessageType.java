@@ -1,4 +1,4 @@
-package channel;
+package message;
 
 /**
  * The enum Message type.

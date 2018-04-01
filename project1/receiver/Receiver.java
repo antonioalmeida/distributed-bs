@@ -1,6 +1,6 @@
 package receiver;
 
-import channel.Message;
+import message.Message;
 import utils.Utils;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ public class Receiver {
     /**
      * The Address.
      */
-// Multicast channel is defined by its address and port
+// Multicast message is defined by its address and port
     protected InetAddress address;
     /**
      * The Port.

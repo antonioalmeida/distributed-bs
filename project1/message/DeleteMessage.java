@@ -1,4 +1,4 @@
-package channel;
+package message;
 
 /**
  * Created by antonioalmeida on 30/03/2018.

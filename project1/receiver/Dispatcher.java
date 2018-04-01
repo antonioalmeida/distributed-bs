@@ -1,7 +1,7 @@
 package receiver;
 
-import channel.Message;
-import server.PeerController;
+import message.Message;
+import peer.PeerController;
 import utils.Globals;
 import utils.Utils;
 

@@ -1,4 +1,6 @@
-package channel;
+package receiver;
+
+import message.Message;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -13,7 +15,7 @@ public class Channel {
     /**
      * The Address.
      */
-// Multicast channel is defined by its address and port
+// Multicast message is defined by its address and port
     protected InetAddress address;
     /**
      * The Port.

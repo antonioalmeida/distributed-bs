@@ -1,6 +1,6 @@
 package protocol;
 
-import server.Peer;
+import peer.Peer;
 
 /**
  * Created by antonioalmeida on 30/03/2018.

@@ -1,8 +1,8 @@
 package protocol;
 
-import channel.Channel;
-import channel.Message;
-import server.Peer;
+import receiver.Channel;
+import message.Message;
+import peer.Peer;
 import utils.Utils;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public abstract class ProtocolInitiator implements Runnable {
      * Instantiates a new Protocol initiator.
      *
      * @param peer    the peer
-     * @param channel the channel
+     * @param channel the message
      */
     public ProtocolInitiator(Peer peer, Channel channel) {
         this.peer = peer;

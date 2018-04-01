@@ -1,8 +1,8 @@
 package protocol;
 
-import channel.Channel;
-import channel.Message;
-import server.Peer;
+import receiver.Channel;
+import message.Message;
+import peer.Peer;
 import storage.ChunkCreator;
 import utils.Globals;
 
@@ -25,7 +25,7 @@ public class BackupInitiator extends ProtocolInitiator {
      * @param peer              the peer
      * @param filePath          the file path
      * @param replicationDegree the replication degree
-     * @param channel           the channel
+     * @param channel           the message
      */
     public BackupInitiator(Peer peer, String filePath, int replicationDegree, Channel channel) {
         super(peer, channel);

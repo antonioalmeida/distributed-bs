@@ -1,9 +1,9 @@
 package protocol;
 
-import channel.Channel;
-import channel.GetChunkMessage;
-import channel.Message;
-import server.Peer;
+import receiver.Channel;
+import message.GetChunkMessage;
+import message.Message;
+import peer.Peer;
 
 import java.util.ArrayList;
 
@@ -21,7 +21,7 @@ public class RestoreInitiator extends ProtocolInitiator {
      *
      * @param peer     the peer
      * @param filePath the file path
-     * @param channel  the channel
+     * @param channel  the message
      */
     public RestoreInitiator(Peer peer, String filePath, Channel channel) {
         super(peer, channel);

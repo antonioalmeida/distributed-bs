@@ -1,8 +1,8 @@
 package storage;
 
-import channel.ChunkMessage;
-import channel.Message;
-import server.Peer;
+import message.ChunkMessage;
+import message.Message;
+import peer.Peer;
 
 import java.io.IOException;
 import java.nio.file.Files;
