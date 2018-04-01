@@ -31,7 +31,7 @@ public class Dispatcher {
             if(message.getPeerID().equals(this.peerID))
                 return;
 
-            mplementint randomWait;
+            int randomWait;
 
             switch(message.getType()) {
                 case PUTCHUNK:
