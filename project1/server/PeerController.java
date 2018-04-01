@@ -131,7 +131,7 @@ public class PeerController {
             if(storedRepliesInfo.containsKey(key)) {
                 //if received a stored message meanwhile, ignore (and remove storedRepliesInfo)
                 if(storedRepliesInfo.get(key)) {
-                    System.out.println("Received a CHUNK message for " + message.getChunkIndex() + " meanwhile, ignoring request");
+                    System.out.println("Received a STORED message for " + message.getChunkIndex() + " meanwhile, ignoring request");
                     storedRepliesInfo.remove(key);
                     return;
                 }
@@ -187,7 +187,7 @@ public class PeerController {
         if (backedUpChunksInfo.containsKey(key) && !backedUpChunksInfo.get(key).isBackedUpByPeer(message.getPeerID())) {
             chunkInfo = backedUpChunksInfo.get(key);
             chunkInfo.incActualReplicationDegree();
-            chunkInfo.isBackedUpByPeer(message.getPeerID());
+            chunkInfo.addPeer(message.getPeerID());
             backedUpChunksInfo.put(key, chunkInfo);
         }
 
@@ -198,7 +198,7 @@ public class PeerController {
         if(storedChunksInfo.containsKey(key) && !storedChunksInfo.get(key).isBackedUpByPeer(message.getPeerID())) {
             chunkInfo = storedChunksInfo.get(key);
             chunkInfo.incActualReplicationDegree();
-            chunkInfo.isBackedUpByPeer(message.getPeerID());
+            chunkInfo.addPeer(message.getPeerID());
             storedChunksInfo.put(key, chunkInfo);
         }
 
