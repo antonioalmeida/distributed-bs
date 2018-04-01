@@ -20,6 +20,11 @@ public class Globals {
     public static int MAX_CHUNK_WAITING_TIME = 400;
 
     /**
+     * The constant MAX_CHUNK_WAITING_TIME.
+     */
+    public static int MAX_REMOVED_WAITING_TIME = 400;
+
+    /**
      * The constant MAX_PEER_STORAGE.
      */
     public static long MAX_PEER_STORAGE = 8*10^9; //8MB

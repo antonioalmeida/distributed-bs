@@ -310,6 +310,14 @@ public class Message implements Comparable {
         return body;
     }
 
+    public void setType(MessageType type) {
+        this.type = type;
+    }
+
+    public void setRepDegree(int degree) {
+        this.repDegree = degree;
+    }
+
     @Override
     public int compareTo(Object o) {
         return this.chunkNr - ((Message) o).getChunkIndex();

@@ -2,15 +2,16 @@ package server;
 
 import channel.*;
 import javafx.util.Pair;
+import protocol.SingleBackupInitiator;
 import receiver.*;
 import storage.FileSystem;
 import utils.Globals;
+import utils.Utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.*;
 
 /**
  * Created by antonioalmeida on 27/03/2018.
@@ -28,6 +29,8 @@ public class PeerController {
     private FileSystem fileSystem;
 
     private boolean backupEnhancement;
+
+    private ScheduledExecutorService putchunkThreadPool = Executors.newScheduledThreadPool(50);
 
     // Stored chunks
     // < fileID, chunkIndex >
@@ -61,7 +64,6 @@ public class PeerController {
     // useful information for the backup protocol enhancement, storing info about received STORED messages
     // < (fileID, chunkIndex), boolean received >
     private ConcurrentHashMap< Pair<String, Integer>, Boolean> storedRepliesInfo;
-    //private ConcurrentHashMap<String, ArrayList<Integer>> storedRepliesInfo;
 
     /**
      * Instantiates a new Peer controller.
@@ -157,7 +159,6 @@ public class PeerController {
         else
             System.out.println("Already stored chunk, sending STORED anyway.");
 
-        //TODO: Is it correct here to put the putchunk message version in our stored response??
         Message storedMessage = new StoredMessage(message.getVersion(), peer.getPeerID(), message.getFileID(), message.getChunkIndex());
 
         MCReceiver.sendWithRandomDelay(0, Globals.MAX_STORED_WAITING_TIME, storedMessage);
@@ -316,12 +317,20 @@ public class PeerController {
         System.out.println("Received Removed Message: " + message.getChunkIndex());
 
         Pair<String, Integer> key = new Pair<>(message.getFileID(), message.getChunkIndex());
-        if(backedUpChunksInfo.containsKey(key)) {
-            ChunkInfo chunkInfo = backedUpChunksInfo.get(key);
+        if(storedChunksInfo.containsKey(key)) {
+            ChunkInfo chunkInfo = storedChunksInfo.get(key);
             chunkInfo.decActualReplicationDegree();
 
+            // if replication degree isn't satisfied anymore,
+            // initiate new putchunk protocol for the chunk,
+            // but wait between 0-400 ms and check if degree
+            // satisfied in the meantime
             if(!chunkInfo.isDegreeSatisfied()) {
-                // wait random between 0 and 400ms
+                System.out.println("Chunk " + message.getChunkIndex() + " not satisfied anymore.");
+                Message chunk = fileSystem.retrieveChunk(message.getFileID(), message.getChunkIndex());
+
+                putchunkThreadPool.schedule( new SingleBackupInitiator(this, chunk, chunkInfo.getDesiredReplicationDegree(), MDBReceiver),
+                Utils.getRandomBetween(0, Globals.MAX_REMOVED_WAITING_TIME), TimeUnit.MILLISECONDS);
             }
         }
     }

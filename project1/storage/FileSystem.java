@@ -2,6 +2,7 @@ package storage;
 
 import channel.ChunkMessage;
 import channel.Message;
+import channel.PutChunkMessage;
 import server.Peer;
 import utils.Globals;
 
