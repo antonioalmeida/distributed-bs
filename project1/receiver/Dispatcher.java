@@ -31,11 +31,21 @@ public class Dispatcher {
             if(message.getPeerID().equals(this.peerID))
                 return;
 
+            int randomWait;
+
             switch(message.getType()) {
                 case PUTCHUNK:
-                    threadPool.submit(() -> {
+                    //TODO: make a proper verification
+                    if(message.getVersion() != "1.0") {
+                        controller.listenForStoreReplies(message.getFileID(), message.getChunkIndex());
+                        randomWait = Utils.getRandomBetween(0, Globals.MAX_BACKUP_ENH_WAIT_TIME);
+                    }
+                    else
+                        randomWait = 0;
+
+                    threadPool.schedule(() -> {
                         controller.handlePutchunkMessage(message);
-                    });
+                    }, randomWait, TimeUnit.MILLISECONDS);
                     break;
                 case STORED:
                     threadPool.submit(() -> {
@@ -43,7 +53,7 @@ public class Dispatcher {
                     });
                     break;
                 case GETCHUNK:
-                    int randomWait = Utils.getRandomBetween(0, Globals.MAX_CHUNK_WAITING_TIME);
+                    randomWait = Utils.getRandomBetween(0, Globals.MAX_CHUNK_WAITING_TIME);
                     threadPool.schedule(() -> {
                         controller.handleGetChunkMessage(message);
                     }, randomWait, TimeUnit.MILLISECONDS);

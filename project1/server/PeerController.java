@@ -27,6 +27,8 @@ public class PeerController {
 
     private FileSystem fileSystem;
 
+    private boolean backupEnhancement;
+
     // Stored chunks
     // < fileID, chunkIndex >
     private ConcurrentHashMap<String, ArrayList<Integer>> storedChunks;
@@ -55,6 +57,12 @@ public class PeerController {
     // < fileID, chunkID[] >
     private ConcurrentHashMap<String, ArrayList<Integer>> getChunkRequestsInfo;
 
+    //FOR BACKUP ENHANCEMENT
+    // useful information for the backup protocol enhancement, storing info about received STORED messages
+    // < (fileID, chunkIndex), boolean received >
+    private ConcurrentHashMap< Pair<String, Integer>, Boolean> storedRepliesInfo;
+    //private ConcurrentHashMap<String, ArrayList<Integer>> storedRepliesInfo;
+
     public PeerController(Peer peer, String MCAddress, int MCPort, String MDBAddress, int MDBPort, String MDRAddress, int MDRPort) {
         this.peer = peer;
 
@@ -80,11 +88,37 @@ public class PeerController {
 
         getChunkRequestsInfo = new ConcurrentHashMap<>();
 
+        //TODO: make proper verification
+        if(peer.getProtocolVersion() != "1.0") {
+            System.out.println("BACKUP enhancement activated");
+            backupEnhancement = true;
+        }
+        else
+            backupEnhancement = false;
+        
+        storedRepliesInfo = new ConcurrentHashMap<>();
+
         fileSystem = new FileSystem(peer, Globals.MAX_PEER_STORAGE, Globals.PEER_FILESYSTEM_DIR + "/" + peer.getPeerID());
     }
 
     public void handlePutchunkMessage(Message message) {
         System.out.println("Received Putchunk: " + message.getChunkIndex());
+
+        String fileID = message.getFileID();
+        int chunkIndex = message.getChunkIndex();
+
+        if(backupEnhancement && message.getVersion() != "1.0") {
+            Pair<String, Integer> key = new Pair<>(fileID, chunkIndex);
+
+            if(storedRepliesInfo.containsKey(key)) {
+                //if received a stored message meanwhile, ignore (and remove storedRepliesInfo)
+                if(storedRepliesInfo.get(key)) {
+                    System.out.println("Received a CHUNK message for " + message.getChunkIndex() + " meanwhile, ignoring request");
+                    storedRepliesInfo.remove(key);
+                    return;
+                }
+            }
+        }
 
         // check if chunks from this file are already being saved
         storedChunks.putIfAbsent(message.getFileID(), new ArrayList<>());
@@ -121,10 +155,12 @@ public class PeerController {
         Pair<String, Integer> key = new Pair<>(message.getFileID(), message.getChunkIndex());
         ChunkInfo chunkInfo;
 
+        // TODO: are the following ifs mutually exclusive? I think so
+
         // if this chunk is from a file the peer
         // has requested to backup (aka is the
         // initiator peer), and hasn't received
-        // a stored message update actual rep degree,
+        // a stored message, update actual rep degree,
         // and add peer
         if (backedUpChunksInfo.containsKey(key) && !backedUpChunksInfo.get(key).isBackedUpByPeer(message.getPeerID())) {
             chunkInfo = backedUpChunksInfo.get(key);
@@ -134,14 +170,20 @@ public class PeerController {
         }
 
         // if this peer has this chunk stored,
-        // from this peer yet, and hasn't received
-        // a stored message from this peer yet,
-        // update actual rep degree, and add peer
+        // and hasn't received stored message
+        // from this peer yet, update actual
+        // rep degree, and add peer
         if(storedChunksInfo.containsKey(key) && !storedChunksInfo.get(key).isBackedUpByPeer(message.getPeerID())) {
             chunkInfo = storedChunksInfo.get(key);
             chunkInfo.incActualReplicationDegree();
             chunkInfo.isBackedUpByPeer(message.getPeerID());
             storedChunksInfo.put(key, chunkInfo);
+        }
+
+        if(backupEnhancement && message.getVersion() != "1.0") {
+            //if currently listening for this chunk's stored message, set found to true
+            if(storedRepliesInfo.containsKey(key))
+                storedRepliesInfo.put(key, true);
         }
     }
 
@@ -339,6 +381,11 @@ public class PeerController {
         String filePath = restoringFilesInfo.get(fileID).getKey();
 
         fileSystem.saveFile(filePath, fileBody);
+    }
+
+    public void listenForStoreReplies(String fileID, int chunkIndex) {
+        Pair<String, Integer> key = new Pair<>(fileID, chunkIndex);
+        storedRepliesInfo.putIfAbsent(key, false);
     }
 
     public byte[] mergeRestoredFile(String fileID) {
