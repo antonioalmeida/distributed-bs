@@ -153,12 +153,12 @@ public class PeerController {
 
         // if received a chunk message for this chunk meanwhile, return
         if(getChunkRequestsInfo.containsKey(fileID)) {
-            ArrayList chunkList = getChunkRequestsInfo.get(fileID);
+            ArrayList<Integer> chunkList = getChunkRequestsInfo.get(fileID);
 
             if(chunkList.contains(chunkIndex)) {
                 chunkList.remove((Integer) chunkIndex);
                 getChunkRequestsInfo.put(fileID, chunkList);
-                System.out.println("Received a CHUNK message meanwhile, ignoring request");
+                System.out.println("Received a CHUNK message for " + chunkIndex + " meanwhile, ignoring request");
                 return;
             }
         }
@@ -182,34 +182,35 @@ public class PeerController {
         int chunkIndex = message.getChunkIndex();
 
         if(getChunkRequestsInfo.containsKey(fileID)) {
-            ArrayList chunkList = getChunkRequestsInfo.get(fileID);
+            ArrayList<Integer> chunkList = getChunkRequestsInfo.get(fileID);
             
             if(!chunkList.contains((Integer) chunkIndex)) {
                 chunkList.add(chunkIndex);
                 getChunkRequestsInfo.put(fileID, chunkList);
+                System.out.println("Added Chunk " + chunkIndex + " to requests info.");
             }
         }
         else
             getChunkRequestsInfo.put(fileID, new ArrayList<>());
 
         // Not restoring this file
-        if(!restoringFiles.containsKey(message.getFileID()))
+        if(!restoringFiles.containsKey(fileID))
             return;
 
-        ConcurrentSkipListSet<Message> fileRestoredChunks = restoringFiles.get(message.getFileID());
+        ConcurrentSkipListSet<Message> fileRestoredChunks = restoringFiles.get(fileID);
         fileRestoredChunks.add(message);
 
         restoringFiles.put(message.getFileID(), fileRestoredChunks);
 
-        int fileChunkAmount = restoringFilesInfo.get(message.getFileID()).getValue();
+        int fileChunkAmount = restoringFilesInfo.get(fileID).getValue();
 
         // stored all the file's chunks
         if(fileRestoredChunks.size() == fileChunkAmount) {
-            saveRestoredFile(message.getFileID());
+            saveRestoredFile(fileID);
 
             // restoring complete
-            restoringFiles.remove(message.getFileID());
-            restoringFilesInfo.remove(message.getFileID());
+            restoringFiles.remove(fileID);
+            restoringFilesInfo.remove(fileID);
         }
     }
 

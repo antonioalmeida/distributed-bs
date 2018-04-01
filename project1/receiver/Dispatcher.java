@@ -43,15 +43,15 @@ public class Dispatcher {
                     });
                     break;
                 case GETCHUNK:
-                    threadPool.submit(() -> {
-                        controller.handleGetChunkMessage(message);
-                    });
-                    break;
-                case CHUNK:
                     int randomWait = Utils.getRandomBetween(0, Globals.MAX_CHUNK_WAITING_TIME);
                     threadPool.schedule(() -> {
-                        controller.handleChunkMessage(message);
+                        controller.handleGetChunkMessage(message);
                     }, randomWait, TimeUnit.MILLISECONDS);
+                    break;
+                case CHUNK:
+                    threadPool.submit(() -> {
+                        controller.handleChunkMessage(message);
+                    });
                     break;
                 case DELETE:
                     threadPool.submit(() -> {
