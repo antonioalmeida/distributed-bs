@@ -6,16 +6,26 @@ import rmi.RemoteService;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by antonioalmeida on 17/03/2018.
  */
 public class TestApp {
 
-    public static void main(final String args[]) throws RemoteException {
+    private String host;
+    private int port;
+    private String name;
 
-        String host = (args.length < 1) ? null : args[0];
-        RemoteService stub = initApp(host);
+    public static void main(final String args[]) throws RemoteException {
+        //TODO: add input validation
+        new TestApp(args);
+    }
+
+    private TestApp(String[] args) throws RemoteException {
+        parseLocation(args[0]);
+        RemoteService stub = initApp();
 
         //only one of the following will be used
         String filePath = args[2];
@@ -42,17 +52,38 @@ public class TestApp {
         }
     }
 
-    private static RemoteService initApp(String host) {
+    private RemoteService initApp() {
         RemoteService stub = null;
 
         try {
-            Registry registry = LocateRegistry.getRegistry(null);
-            stub = (RemoteService) registry.lookup(host);
+            Registry registry = LocateRegistry.getRegistry(host, port);
+            stub = (RemoteService) registry.lookup(name);
         } catch (Exception e) {
-            System.err.println("Error connecting to remote object '" + host + "'");
+            System.err.println("Error connecting to remote object '" + name + "' on " + host);
             e.printStackTrace();
         }
 
         return stub;
+    }
+
+    private boolean parseLocation(String location) {
+        // 1st group: host (mandatory)
+        // 2nd group: port (optional)
+        // 3rd group: name (mandatory)
+        Pattern p = Pattern.compile("//([\\w.]+)(?::(\\d+))?/(\\w+)");
+        Matcher m = p.matcher(location);
+
+        if(!m.matches())
+            return false;
+
+        int nGroups = m.groupCount();
+        this.host = m.group(1);
+        this.name = m.group(3);
+
+        // if port exists
+        if(nGroups == 3)
+            this.port = Integer.parseInt(m.group(2));
+
+        return true;
     }
 }
