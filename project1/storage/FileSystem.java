@@ -28,6 +28,13 @@ public class FileSystem {
     private String backupDirectory;
     private String restoreDirectory;
 
+    /**
+     * Instantiates a new File system.
+     *
+     * @param peer          the peer
+     * @param maxStorage    the max storage
+     * @param baseDirectory the base directory
+     */
     public FileSystem(Peer peer, long maxStorage, String baseDirectory) {
         this.maxStorage = maxStorage;
         this.baseDirectory = baseDirectory + "/";
@@ -39,6 +46,12 @@ public class FileSystem {
         initDirectories();
     }
 
+    /**
+     * Store chunk boolean.
+     *
+     * @param chunk the chunk
+     * @return the boolean
+     */
     public synchronized boolean storeChunk(Message chunk) {
         if(!hasFreeSpace(chunk.getBody().length))
             return false;
@@ -59,6 +72,13 @@ public class FileSystem {
         return true;
     }
 
+    /**
+     * Retrieve chunk message.
+     *
+     * @param fileID     the file id
+     * @param chunkIndex the chunk index
+     * @return the message
+     */
     public synchronized Message retrieveChunk(String fileID, int chunkIndex) {
         Path chunkPath = Paths.get(this.backupDirectory + "/"+fileID+"_"+chunkIndex);
 
@@ -73,6 +93,12 @@ public class FileSystem {
         return chunk;
     }
 
+    /**
+     * Save file.
+     *
+     * @param filePath the file path
+     * @param body     the body
+     */
     public synchronized void saveFile(String filePath, byte[] body) {
         Path path = Paths.get(this.restoreDirectory + "/" + filePath);
         System.out.println("FULL PATH: " + path.toAbsolutePath());
@@ -89,6 +115,13 @@ public class FileSystem {
         System.out.println("File " + filePath + " restored successfully");
     }
 
+    /**
+     * Delete chunk.
+     *
+     * @param fileID           the file id
+     * @param chunkIndex       the chunk index
+     * @param updateMaxStorage the update max storage
+     */
     public synchronized void deleteChunk(String fileID, int chunkIndex, boolean updateMaxStorage) {
         Path path = Paths.get(this.backupDirectory+"/"+fileID+"_"+chunkIndex);
         long savedStorage = 0;
@@ -126,10 +159,20 @@ public class FileSystem {
         return usedStorage + size > maxStorage;
     }
 
+    /**
+     * Gets used storage.
+     *
+     * @return the used storage
+     */
     public long getUsedStorage() {
         return usedStorage;
     }
 
+    /**
+     * Gets max storage.
+     *
+     * @return the max storage
+     */
     public long getMaxStorage() {
         return maxStorage;
     }

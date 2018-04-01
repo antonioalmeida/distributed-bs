@@ -4,20 +4,52 @@ import utils.Globals;
 
 import java.lang.StringBuilder;
 
+/**
+ * The type Message.
+ */
 public class Message implements Comparable {
+    /**
+     * The constant CRLF.
+     */
     public static String CRLF = "\r\n";
 
+    /**
+     * The Type.
+     */
     protected MessageType type;
+    /**
+     * The Version.
+     */
     protected String version;
+    /**
+     * The Peer id.
+     */
     protected Integer peerID;
+    /**
+     * The File id.
+     */
     protected String fileID;
 
-    //Not used on all messages so null until (eventually) overwritten
+    /**
+     * The Chunk nr.
+     */
+//Not used on all messages so null until (eventually) overwritten
     protected Integer chunkNr = null;
+    /**
+     * The Rep degree.
+     */
     protected Integer repDegree = null;
+    /**
+     * The Body.
+     */
     protected byte[] body = null;
 
-    //Processes a message's header line
+    /**
+     * Process header.
+     *
+     * @param str the str
+     */
+//Processes a message's header line
     public void processHeader(String str) {
       String[] header = str.split("\\s+");
       switch(header[0]) {
@@ -51,7 +83,12 @@ public class Message implements Comparable {
         this.chunkNr = Integer.parseInt(header[4]);
     }
 
-    //Processes a message given as a String
+    /**
+     * Instantiates a new Message.
+     *
+     * @param messageStr the message str
+     */
+//Processes a message given as a String
     public Message(String messageStr) {
         //Should split into two elements: 0 = header, 1 = body (if present)
         String[] messageComponents = messageStr.split("\\R\\R", 2);
@@ -61,7 +98,13 @@ public class Message implements Comparable {
         processHeader(messageComponents[0]);
     }
 
-    //Processes a message given as a byte[] (directly from a DatagramPacket)
+    /**
+     * Instantiates a new Message.
+     *
+     * @param message the message
+     * @param size    the size
+     */
+//Processes a message given as a byte[] (directly from a DatagramPacket)
     public Message(byte[] message, int size) {
         int headerLength = 0;
         for (int i = 0; i < message.length; ++i) {
@@ -80,6 +123,14 @@ public class Message implements Comparable {
         System.arraycopy(message, headerLength, this.body, 0, bodyLength);
     }
 
+    /**
+     * Instantiates a new Message.
+     *
+     * @param version the version
+     * @param peerID  the peer id
+     * @param fileID  the file id
+     * @param body    the body
+     */
     public Message(String version, Integer peerID, String fileID, byte[] body) {
         this.version = version;
         this.peerID = peerID;
@@ -87,6 +138,11 @@ public class Message implements Comparable {
         this.body = body;
     }
 
+    /**
+     * Build message packet byte [ ].
+     *
+     * @return the byte [ ]
+     */
     public byte[] buildMessagePacket() {
       StringBuilder result = new StringBuilder();
       switch(this.type){
@@ -191,30 +247,65 @@ public class Message implements Comparable {
         return result.toString();
     }
 
+    /**
+     * Gets type.
+     *
+     * @return the type
+     */
     public MessageType getType() {
         return type;
     }
 
+    /**
+     * Gets version.
+     *
+     * @return the version
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     * Gets peer id.
+     *
+     * @return the peer id
+     */
     public Integer getPeerID() {
         return peerID;
     }
 
+    /**
+     * Gets file id.
+     *
+     * @return the file id
+     */
     public String getFileID() {
         return fileID;
     }
 
+    /**
+     * Gets chunk index.
+     *
+     * @return the chunk index
+     */
     public Integer getChunkIndex() {
         return chunkNr;
     }
 
+    /**
+     * Gets rep degree.
+     *
+     * @return the rep degree
+     */
     public Integer getRepDegree() {
         return repDegree;
     }
 
+    /**
+     * Get body byte [ ].
+     *
+     * @return the byte [ ]
+     */
     public byte[] getBody() {
         return body;
     }

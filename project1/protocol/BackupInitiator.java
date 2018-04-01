@@ -24,6 +24,14 @@ public class BackupInitiator extends ProtocolInitiator {
     private String filePath;
     private int replicationDegree;
 
+    /**
+     * Instantiates a new Backup initiator.
+     *
+     * @param peer              the peer
+     * @param filePath          the file path
+     * @param replicationDegree the replication degree
+     * @param channel           the channel
+     */
     public BackupInitiator(Peer peer, String filePath, int replicationDegree, Channel channel) {
         super(peer, channel);
         this.filePath = filePath;

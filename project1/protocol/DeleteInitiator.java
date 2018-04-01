@@ -17,6 +17,13 @@ public class DeleteInitiator extends ProtocolInitiator {
 
     private String filePath;
 
+    /**
+     * Instantiates a new Delete initiator.
+     *
+     * @param peer     the peer
+     * @param filePath the file path
+     * @param channel  the channel
+     */
     public DeleteInitiator(Peer peer, String filePath, Channel channel) {
         super(peer, channel);
         this.filePath = filePath;

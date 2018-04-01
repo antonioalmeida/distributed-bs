@@ -18,6 +18,12 @@ public class TestApp {
     private int port = 1099; //Default port
     private String name = null;
 
+    /**
+     * Main.
+     *
+     * @param args the args
+     * @throws RemoteException the remote exception
+     */
     public static void main(final String args[]) throws RemoteException {
         //TODO: add input validation
         new TestApp(args);

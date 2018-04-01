@@ -63,6 +63,17 @@ public class PeerController {
     private ConcurrentHashMap< Pair<String, Integer>, Boolean> storedRepliesInfo;
     //private ConcurrentHashMap<String, ArrayList<Integer>> storedRepliesInfo;
 
+    /**
+     * Instantiates a new Peer controller.
+     *
+     * @param peer       the peer
+     * @param MCAddress  the mc address
+     * @param MCPort     the mc port
+     * @param MDBAddress the mdb address
+     * @param MDBPort    the mdb port
+     * @param MDRAddress the mdr address
+     * @param MDRPort    the mdr port
+     */
     public PeerController(Peer peer, String MCAddress, int MCPort, String MDBAddress, int MDBPort, String MDRAddress, int MDRPort) {
         this.peer = peer;
 
@@ -101,6 +112,11 @@ public class PeerController {
         fileSystem = new FileSystem(peer, Globals.MAX_PEER_STORAGE, Globals.PEER_FILESYSTEM_DIR + "/" + peer.getPeerID());
     }
 
+    /**
+     * Handle putchunk message.
+     *
+     * @param message the message
+     */
     public void handlePutchunkMessage(Message message) {
         System.out.println("Received Putchunk: " + message.getChunkIndex());
 
@@ -149,6 +165,11 @@ public class PeerController {
         System.out.println("Sent Stored Message: " + storedMessage.getChunkIndex());
     }
 
+    /**
+     * Handle stored message.
+     *
+     * @param message the message
+     */
     public void handleStoredMessage(Message message) {
         System.out.println("Received Stored Message: " + message.getChunkIndex());
 
@@ -187,6 +208,11 @@ public class PeerController {
         }
     }
 
+    /**
+     * Handle get chunk message.
+     *
+     * @param message the message
+     */
     public void handleGetChunkMessage(Message message) {
         System.out.println("Received GetChunk Message: " + message.getChunkIndex());
 
@@ -217,6 +243,11 @@ public class PeerController {
         MDRReceiver.sendWithRandomDelay(0, Globals.MAX_CHUNK_WAITING_TIME, chunkMessage);
     }
 
+    /**
+     * Handle chunk message.
+     *
+     * @param message the message
+     */
     public void handleChunkMessage(Message message) {
         System.out.println("Received Chunk Message: " + message.getChunkIndex());
 
@@ -256,6 +287,11 @@ public class PeerController {
         }
     }
 
+    /**
+     * Handle delete message.
+     *
+     * @param message the message
+     */
     public void handleDeleteMessage(Message message) {
         System.out.println("Received Delete Message");
 
@@ -271,6 +307,11 @@ public class PeerController {
         System.out.println("Delete Success: file deleted.");
     }
 
+    /**
+     * Handle removed message.
+     *
+     * @param message the message
+     */
     public void handleRemovedMessage(Message message) {
         System.out.println("Received Removed Message: " + message.getChunkIndex());
 
@@ -285,6 +326,12 @@ public class PeerController {
         }
     }
 
+    /**
+     * Reclaim space boolean.
+     *
+     * @param targetSpace the target space
+     * @return the boolean
+     */
     public boolean reclaimSpace(long targetSpace) {
         while(fileSystem.getUsedStorage() > targetSpace) {
             Pair<String, Integer> toDelete = getMostSatisfiedChunk();
@@ -308,11 +355,22 @@ public class PeerController {
         return true;
     }
 
+    /**
+     * Init backed up chunks info.
+     *
+     * @param chunk the chunk
+     */
     public void initBackedUpChunksInfo(Message chunk) {
         Pair<String, Integer> key = new Pair<>(chunk.getFileID(), chunk.getChunkIndex());
         backedUpChunksInfo.putIfAbsent(key, new ChunkInfo(chunk.getRepDegree(), 0));
     }
 
+    /**
+     * Gets backed up chunk rep degree.
+     *
+     * @param chunk the chunk
+     * @return the backed up chunk rep degree
+     */
     public int getBackedUpChunkRepDegree(Message chunk) {
         Pair<String, Integer> key = new Pair<>(chunk.getFileID(), chunk.getChunkIndex());
 
@@ -323,10 +381,23 @@ public class PeerController {
         return currentDegree;
     }
 
+    /**
+     * Add backed up file.
+     *
+     * @param filePath    the file path
+     * @param fileID      the file id
+     * @param chunkAmount the chunk amount
+     */
     public void addBackedUpFile(String filePath, String fileID, int chunkAmount) {
         backedUpFiles.put(filePath, new Pair<>(fileID, chunkAmount));
     }
 
+    /**
+     * Gets backed up file id.
+     *
+     * @param filePath the file path
+     * @return the backed up file id
+     */
     public String getBackedUpFileID(String filePath) {
         if(!backedUpFiles.containsKey(filePath))
             return null;
@@ -335,6 +406,12 @@ public class PeerController {
         return fileInfo.getKey();
     }
 
+    /**
+     * Gets backed up file chunk amount.
+     *
+     * @param filePath the file path
+     * @return the backed up file chunk amount
+     */
     public Integer getBackedUpFileChunkAmount(String filePath) {
         if(!backedUpFiles.containsKey(filePath))
             return 0;
@@ -343,6 +420,11 @@ public class PeerController {
         return fileInfo.getValue();
     }
 
+    /**
+     * Gets most satisfied chunk.
+     *
+     * @return the most satisfied chunk
+     */
     public Pair<String, Integer> getMostSatisfiedChunk() {
         if(storedChunksInfo.isEmpty()) {
             System.out.println("Stored chunks info is empty");
@@ -360,6 +442,13 @@ public class PeerController {
         return null;
     }
 
+    /**
+     * Delete chunk.
+     *
+     * @param fileID           the file id
+     * @param chunkIndex       the chunk index
+     * @param updateMaxStorage the update max storage
+     */
     public void deleteChunk(String fileID, int chunkIndex, boolean updateMaxStorage) {
         fileSystem.deleteChunk(fileID, chunkIndex, updateMaxStorage);
 
@@ -371,11 +460,23 @@ public class PeerController {
             storedChunks.get(fileID).remove((Integer) chunkIndex);
     }
 
+    /**
+     * Add to restoring files.
+     *
+     * @param fileID      the file id
+     * @param filePath    the file path
+     * @param chunkAmount the chunk amount
+     */
     public void addToRestoringFiles(String fileID, String filePath, int chunkAmount) {
         restoringFiles.putIfAbsent(fileID, new ConcurrentSkipListSet<>());
         restoringFilesInfo.putIfAbsent(fileID, new Pair<>(filePath, chunkAmount));
     }
 
+    /**
+     * Save restored file.
+     *
+     * @param fileID the file id
+     */
     public void saveRestoredFile(String fileID) {
         byte[] fileBody = mergeRestoredFile(fileID);
         String filePath = restoringFilesInfo.get(fileID).getKey();
@@ -383,11 +484,23 @@ public class PeerController {
         fileSystem.saveFile(filePath, fileBody);
     }
 
+    /**
+     * Listen for store replies.
+     *
+     * @param fileID     the file id
+     * @param chunkIndex the chunk index
+     */
     public void listenForStoreReplies(String fileID, int chunkIndex) {
         Pair<String, Integer> key = new Pair<>(fileID, chunkIndex);
         storedRepliesInfo.putIfAbsent(key, false);
     }
 
+    /**
+     * Merge restored file byte [ ].
+     *
+     * @param fileID the file id
+     * @return the byte [ ]
+     */
     public byte[] mergeRestoredFile(String fileID) {
         // get file's chunks
         ConcurrentSkipListSet<Message> fileChunks = restoringFiles.get(fileID);

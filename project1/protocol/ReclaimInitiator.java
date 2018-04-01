@@ -9,6 +9,12 @@ public class ReclaimInitiator extends ProtocolInitiator {
 
     private long space;
 
+    /**
+     * Instantiates a new Reclaim initiator.
+     *
+     * @param peer  the peer
+     * @param space the space
+     */
     public ReclaimInitiator(Peer peer, long space) {
         super(peer, null);
         this.space = space;

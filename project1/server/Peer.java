@@ -42,7 +42,13 @@ public class Peer implements RemoteService {
 
     private ExecutorService threadPool = Executors.newFixedThreadPool(MAX_INITIATOR_THREADS);
 
-    // server.Peer args
+    /**
+     * Main.
+     *
+     * @param args the args
+     * @throws IOException the io exception
+     */
+// server.Peer args
     //<protocol version> <server id> <service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> <MDBReceiver port> <MDRReceiver address> <MDRReceiver port>
     public static void main(final String args[]) throws IOException {
         Peer peer;
@@ -86,6 +92,11 @@ public class Peer implements RemoteService {
         System.out.println("Java server.Peer : <protocol version> <server id> <service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> <MDBReceiver port> <MDRReceiver address> <MDRReceiver port>");
     }
 
+    /**
+     * Init remote stub.
+     *
+     * @param accessPoint the access point
+     */
     protected void initRemoteStub(String accessPoint) {
         try {
             RemoteService stub = (RemoteService) UnicastRemoteObject.exportObject(this, 0);
@@ -101,14 +112,29 @@ public class Peer implements RemoteService {
         }
     }
 
+    /**
+     * Gets protocol version.
+     *
+     * @return the protocol version
+     */
     public String getProtocolVersion() {
         return version;
     }
 
+    /**
+     * Gets peer id.
+     *
+     * @return the peer id
+     */
     public int getPeerID() {
         return peerID;
     }
 
+    /**
+     * Gets controller.
+     *
+     * @return the controller
+     */
     public PeerController getController() {
         return controller;
     }

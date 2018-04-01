@@ -14,14 +14,34 @@ import java.net.MulticastSocket;
  */
 public class Receiver {
 
-    // Multicast channel is defined by its address and port
+    /**
+     * The Address.
+     */
+// Multicast channel is defined by its address and port
     protected InetAddress address;
+    /**
+     * The Port.
+     */
     protected int port;
 
+    /**
+     * The Socket.
+     */
     protected MulticastSocket socket;
 
+    /**
+     * The Dispatcher.
+     */
     protected Dispatcher dispatcher;
 
+    /**
+     * Instantiates a new Receiver.
+     *
+     * @param address    the address
+     * @param port       the port
+     * @param dispatcher the dispatcher
+     * @throws IOException the io exception
+     */
     public Receiver(String address, int port, Dispatcher dispatcher) throws IOException {
         // create multicast socket
         this.socket = new MulticastSocket(port);
@@ -60,10 +80,20 @@ public class Receiver {
         }).start();
     }
 
+    /**
+     * Parse message.
+     *
+     * @param packet the packet
+     */
     public void parseMessage(DatagramPacket packet) {
         String request = new String(packet.getData()).trim();
     }
 
+    /**
+     * Send message.
+     *
+     * @param message the message
+     */
     public void sendMessage(Message message) {
         byte[] rbuf = message.buildMessagePacket();
 
@@ -74,6 +104,13 @@ public class Receiver {
         }
     }
 
+    /**
+     * Send with random delay.
+     *
+     * @param min     the min
+     * @param max     the max
+     * @param message the message
+     */
     public void sendWithRandomDelay(int min, int max, Message message) {
         int random = Utils.getRandomBetween(min, max);
 

@@ -22,6 +22,14 @@ public class ChunkCreator {
     private int peerID;
     private String version;
 
+    /**
+     * Instantiates a new Chunk creator.
+     *
+     * @param filePath          the file path
+     * @param replicationDegree the replication degree
+     * @param peerID            the peer id
+     * @param version           the version
+     */
     public ChunkCreator(String filePath, int replicationDegree, int peerID, String version) {
         this.replicationDegree = replicationDegree;
         this.peerID = peerID;
@@ -70,6 +78,11 @@ public class ChunkCreator {
         }
     }
 
+    /**
+     * Gets chunk list.
+     *
+     * @return the chunk list
+     */
     public ArrayList<Message> getChunkList() {
         return chunkList;
     }

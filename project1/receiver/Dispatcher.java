@@ -19,11 +19,23 @@ public class Dispatcher {
 
     private ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(MAX_DISPATCHER_THREADS);
 
+    /**
+     * Instantiates a new Dispatcher.
+     *
+     * @param controller the controller
+     * @param peerID     the peer id
+     */
     public Dispatcher(PeerController controller, int peerID) {
         this.peerID = peerID;
         this.controller = controller;
     }
 
+    /**
+     * Handle message.
+     *
+     * @param buf  the buf
+     * @param size the size
+     */
     public void handleMessage(byte[] buf, int size) {
             Message message = new Message(buf, size);
 

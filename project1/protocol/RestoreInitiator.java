@@ -16,6 +16,13 @@ public class RestoreInitiator extends ProtocolInitiator {
 
     private String filePath;
 
+    /**
+     * Instantiates a new Restore initiator.
+     *
+     * @param peer     the peer
+     * @param filePath the file path
+     * @param channel  the channel
+     */
     public RestoreInitiator(Peer peer, String filePath, Channel channel) {
         super(peer, channel);
         this.filePath = filePath;
