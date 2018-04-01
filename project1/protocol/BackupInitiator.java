@@ -2,16 +2,11 @@ package protocol;
 
 import channel.Channel;
 import channel.Message;
-import channel.PutChunkMessage;
 import server.Peer;
 import storage.ChunkCreator;
 import utils.Globals;
-import utils.Utils;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * Created by antonioalmeida on 21/03/2018.

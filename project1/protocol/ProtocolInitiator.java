@@ -2,12 +2,9 @@ package protocol;
 
 import channel.Channel;
 import channel.Message;
-import channel.PutChunkMessage;
 import server.Peer;
-import utils.Globals;
 import utils.Utils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**

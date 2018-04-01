@@ -1,7 +1,6 @@
 package receiver;
 
 import channel.Message;
-import server.PeerController;
 import utils.Utils;
 
 import java.io.IOException;

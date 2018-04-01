@@ -1,9 +1,5 @@
 package channel;
 
-import utils.Globals;
-
-import java.lang.StringBuilder;
-
 /**
  * The type Message.
  */

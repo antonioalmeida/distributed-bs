@@ -2,14 +2,12 @@ package storage;
 
 import channel.ChunkMessage;
 import channel.Message;
-import channel.PutChunkMessage;
 import server.Peer;
-import utils.Globals;
 
-import java.nio.file.Paths;
-import java.nio.file.Path;
-import java.nio.file.Files;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Created by antonioalmeida on 26/03/2018.

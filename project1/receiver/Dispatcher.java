@@ -1,12 +1,13 @@
 package receiver;
 
 import channel.Message;
-import server.Peer;
 import server.PeerController;
 import utils.Globals;
 import utils.Utils;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by antonioalmeida on 27/03/2018.

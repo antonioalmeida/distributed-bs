@@ -1,6 +1,6 @@
 package server;
 
-import channel.*;
+import channel.Channel;
 import protocol.*;
 import rmi.RemoteService;
 

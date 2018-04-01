@@ -1,10 +1,9 @@
 package utils;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.security.MessageDigest;
-import javax.xml.bind.DatatypeConverter;
 import java.security.NoSuchAlgorithmException;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**

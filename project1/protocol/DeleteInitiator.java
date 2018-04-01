@@ -7,8 +7,6 @@ import server.Peer;
 import utils.Utils;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Created by antonioalmeida on 30/03/2018.

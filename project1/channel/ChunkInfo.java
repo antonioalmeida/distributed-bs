@@ -1,8 +1,6 @@
 package channel;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
 
 /**
  * Created by antonioalmeida on 30/03/2018.

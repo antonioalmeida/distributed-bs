@@ -1,7 +1,5 @@
 package channel;
 
-import channel.Message;
-
 /**
  * Created by antonioalmeida on 28/03/2018.
  */

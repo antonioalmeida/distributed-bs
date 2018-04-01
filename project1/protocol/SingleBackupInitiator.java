@@ -2,14 +2,9 @@ package protocol;
 
 import channel.Message;
 import channel.MessageType;
-import protocol.BackupInitiator;
-import protocol.ProtocolInitiator;
 import receiver.Receiver;
-import server.Peer;
 import server.PeerController;
 import utils.Globals;
-
-import java.util.concurrent.Callable;
 
 /**
  * Created by antonioalmeida on 01/04/2018.
