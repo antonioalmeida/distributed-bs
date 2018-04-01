@@ -51,6 +51,10 @@ public class PeerController {
     // <fileID, Pair<fileName, chunkAmount>
     private ConcurrentHashMap<String, Pair<String, Integer>> restoringFilesInfo;
 
+    // useful information of the files other peers are currently trying to restore
+    // < fileID, chunkID[] >
+    private ConcurrentHashMap<String, ArrayList<Integer>> getChunkRequestsInfo;
+
     public PeerController(Peer peer, String MCAddress, int MCPort, String MDBAddress, int MDBPort, String MDRAddress, int MDRPort) {
         this.peer = peer;
 
@@ -73,6 +77,8 @@ public class PeerController {
 
         restoringFiles = new ConcurrentHashMap<>();
         restoringFilesInfo = new ConcurrentHashMap<>();
+
+        getChunkRequestsInfo = new ConcurrentHashMap<>();
 
         fileSystem = new FileSystem(peer, Globals.MAX_PEER_STORAGE, Globals.PEER_FILESYSTEM_DIR + "/" + peer.getPeerID());
     }
@@ -117,18 +123,24 @@ public class PeerController {
 
         // if this chunk is from a file the peer
         // has requested to backup (aka is the
-        // initiator peer), update actual rep degree
-        if (backedUpChunksInfo.containsKey(key)) {
+        // initiator peer), and hasn't received
+        // a stored message update actual rep degree,
+        // and add peer
+        if (backedUpChunksInfo.containsKey(key) && !backedUpChunksInfo.get(key).isBackedUpByPeer(message.getPeerID())) {
             chunkInfo = backedUpChunksInfo.get(key);
             chunkInfo.incActualReplicationDegree();
+            chunkInfo.isBackedUpByPeer(message.getPeerID());
             backedUpChunksInfo.put(key, chunkInfo);
         }
 
         // if this peer has this chunk stored,
-        // update actual rep degree
-        if(storedChunksInfo.containsKey(key)) {
+        // from this peer yet, and hasn't received
+        // a stored message from this peer yet,
+        // update actual rep degree, and add peer
+        if(storedChunksInfo.containsKey(key) && !storedChunksInfo.get(key).isBackedUpByPeer(message.getPeerID())) {
             chunkInfo = storedChunksInfo.get(key);
             chunkInfo.incActualReplicationDegree();
+            chunkInfo.isBackedUpByPeer(message.getPeerID());
             storedChunksInfo.put(key, chunkInfo);
         }
     }
@@ -138,6 +150,18 @@ public class PeerController {
 
         String fileID = message.getFileID();
         int chunkIndex = message.getChunkIndex();
+
+        // if received a chunk message for this chunk meanwhile, return
+        if(getChunkRequestsInfo.containsKey(fileID)) {
+            ArrayList chunkList = getChunkRequestsInfo.get(fileID);
+
+            if(chunkList.contains(chunkIndex)) {
+                chunkList.remove((Integer) chunkIndex);
+                getChunkRequestsInfo.put(fileID, chunkList);
+                System.out.println("Received a CHUNK message meanwhile, ignoring request");
+                return;
+            }
+        }
 
         // if peer doesn't have any chunks from this file, return
         if(!storedChunks.containsKey(fileID))
@@ -153,6 +177,20 @@ public class PeerController {
 
     public void handleChunkMessage(Message message) {
         System.out.println("Received Chunk Message: " + message.getChunkIndex());
+
+        String fileID = message.getFileID();
+        int chunkIndex = message.getChunkIndex();
+
+        if(getChunkRequestsInfo.containsKey(fileID)) {
+            ArrayList chunkList = getChunkRequestsInfo.get(fileID);
+            
+            if(!chunkList.contains((Integer) chunkIndex)) {
+                chunkList.add(chunkIndex);
+                getChunkRequestsInfo.put(fileID, chunkList);
+            }
+        }
+        else
+            getChunkRequestsInfo.put(fileID, new ArrayList<>());
 
         // Not restoring this file
         if(!restoringFiles.containsKey(message.getFileID()))

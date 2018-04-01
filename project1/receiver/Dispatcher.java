@@ -3,9 +3,10 @@ package receiver;
 import channel.Message;
 import server.Peer;
 import server.PeerController;
+import utils.Globals;
+import utils.Utils;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * Created by antonioalmeida on 27/03/2018.
@@ -16,7 +17,7 @@ public class Dispatcher {
     private int peerID;
     private PeerController controller;
 
-    private ExecutorService threadPool = Executors.newFixedThreadPool(MAX_DISPATCHER_THREADS);
+    private ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(MAX_DISPATCHER_THREADS);
 
     public Dispatcher(PeerController controller, int peerID) {
         this.peerID = peerID;
@@ -24,7 +25,6 @@ public class Dispatcher {
     }
 
     public void handleMessage(byte[] buf, int size) {
-        threadPool.submit(() -> {
             Message message = new Message(buf, size);
 
             //Ignore messages from self
@@ -33,26 +33,38 @@ public class Dispatcher {
 
             switch(message.getType()) {
                 case PUTCHUNK:
-                    controller.handlePutchunkMessage(message);
+                    threadPool.submit(() -> {
+                        controller.handlePutchunkMessage(message);
+                    });
                     break;
                 case STORED:
-                    controller.handleStoredMessage(message);
+                    threadPool.submit(() -> {
+                        controller.handleStoredMessage(message);
+                    });
                     break;
                 case GETCHUNK:
-                    controller.handleGetChunkMessage(message);
+                    threadPool.submit(() -> {
+                        controller.handleGetChunkMessage(message);
+                    });
                     break;
                 case CHUNK:
-                    controller.handleChunkMessage(message);
+                    int randomWait = Utils.getRandomBetween(0, Globals.MAX_CHUNK_WAITING_TIME);
+                    threadPool.schedule(() -> {
+                        controller.handleChunkMessage(message);
+                    }, randomWait, TimeUnit.MILLISECONDS);
                     break;
                 case DELETE:
-                    controller.handleDeleteMessage(message);
+                    threadPool.submit(() -> {
+                        controller.handleDeleteMessage(message);
+                    });
                     break;
                 case REMOVED:
-                    controller.handleRemovedMessage(message);
+                    threadPool.submit(() -> {
+                        controller.handleRemovedMessage(message);
+                    });
                     break;
                 default:
                     System.out.println("No valid type");
             }
-        });
     }
 }
