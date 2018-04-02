@@ -3,48 +3,45 @@ package rmi;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-/**
- * Created by antonioalmeida on 17/03/2018.
- */
 public interface RemoteService extends Remote {
 
     /**
-     * Backup file.
+     * Backup file service.
      *
      * @param filePath          the file path
-     * @param replicationDegree the replication degree
-     * @throws RemoteException the remote exception
+     * @param replicationDegree the desired replication degree
+     * @throws RemoteException
      */
     void backupFile(String filePath, int replicationDegree) throws RemoteException;
 
     /**
-     * Recover file.
+     * Restore file service.
      *
      * @param filePath the file path
-     * @throws RemoteException the remote exception
+     * @throws RemoteException
      */
     void recoverFile(String filePath) throws RemoteException;
 
     /**
-     * Delete file.
+     * Delete file service.
      *
      * @param filePath the file path
-     * @throws RemoteException the remote exception
+     * @throws RemoteException
      */
     void deleteFile(String filePath) throws RemoteException;
 
     /**
-     * Reclaim space.
+     * Reclaim space service.
      *
-     * @param space the space
-     * @throws RemoteException the remote exception
+     * @param space new value for reserved peer storage space
+     * @throws RemoteException
      */
     void reclaimSpace(long space) throws RemoteException;
 
     /**
-     * Retrieve state.
+     * Retrieve state service.
      *
-     * @throws RemoteException the remote exception
+     * @throws RemoteException
      */
     void retrieveState() throws RemoteException;
 }
