@@ -3,6 +3,7 @@ package receiver;
 import message.Message;
 import receiver.Receiver;
 
+import javax.net.ssl.SSLContext;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -78,10 +79,17 @@ public class SocketReceiver implements Runnable {
 
         Message message;
         while((message = (Message) stream.readObject()) != null) {
-            System.out.println("Reading bytes");
-
             dispatcher.handleMessage(message, null);
             System.out.println("Read message from TCP");
+
+            try {
+                stream = new ObjectInputStream(socket.getInputStream());
+            }
+            catch (IOException e) {
+                System.out.println("Closing TCP socket...");
+                socket.close();
+                break;
+            }
         }
     }
 }
