@@ -1,8 +1,5 @@
 package message;
 
-/**
- * Created by antonioalmeida on 30/03/2018.
- */
 public class RemovedMessage extends Message {
     /**
      * Instantiates a new Removed message.

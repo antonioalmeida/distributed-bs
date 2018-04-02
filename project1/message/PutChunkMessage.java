@@ -1,8 +1,5 @@
 package message;
 
-/**
- * Created by antonioalmeida on 27/03/2018.
- */
 public class PutChunkMessage extends Message {
 
     /**

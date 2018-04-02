@@ -31,21 +31,20 @@ public class Message implements Comparable, Serializable {
     /**
      * The Chunk nr.
      */
-//Not used on all messages so null until (eventually) overwritten
-    protected Integer chunkNr = null;
+    protected Integer chunkNr = null; //Not used on all messages so null until (eventually) overwritten
     /**
      * The Rep degree.
      */
-    protected Integer repDegree = null;
+    protected Integer repDegree = null; //Not used on all messages so null until (eventually) overwritten
     /**
      * The Body.
      */
-    protected byte[] body = null;
+    protected byte[] body = null; //Not used on all messages so null until (eventually) overwritten
 
     /**
-     * Process header.
+     * Process a message header given as a string.
      *
-     * @param str the str
+     * @param str the header
      */
 //Processes a message's header line
     public void processHeader(String str) {
@@ -81,12 +80,8 @@ public class Message implements Comparable, Serializable {
         this.chunkNr = Integer.parseInt(header[4]);
     }
 
-    /**
-     * Instantiates a new Message.
-     *
-     * @param messageStr the message str
-     */
-//Processes a message given as a String
+/*
+    //Processes a message given as a String
     public Message(String messageStr) {
         //Should split into two elements: 0 = header, 1 = body (if present)
         String[] messageComponents = messageStr.split("\\R\\R", 2);
@@ -95,18 +90,17 @@ public class Message implements Comparable, Serializable {
 
         processHeader(messageComponents[0]);
     }
-
+*/
     /**
-     * Instantiates a new Message.
+     * Processes a message given as a byte[] (directly from a DatagramPacket)
      *
      * @param message the message
-     * @param size    the size
+     * @param size    the message size
      */
-//Processes a message given as a byte[] (directly from a DatagramPacket)
     public Message(byte[] message, int size) {
         int headerLength = 0;
         for (int i = 0; i < message.length; ++i) {
-            if((char)message[i] == '\r') { //TODO: Parse better
+            if((char)message[i] == '\r' && (char)message[i+1] == '\n') {
                 headerLength = i+4;
                 break;
             }
@@ -115,7 +109,6 @@ public class Message implements Comparable, Serializable {
         String header = new String(message, 0, headerLength);
         processHeader(header);
 
-        //TODO: replace with proper body length calculation
         int bodyLength = size - headerLength;
         this.body = new byte[bodyLength];
         System.arraycopy(message, headerLength, this.body, 0, bodyLength);
@@ -137,9 +130,9 @@ public class Message implements Comparable, Serializable {
     }
 
     /**
-     * Build message packet byte [ ].
+     * Build message packet byte.
      *
-     * @return the byte [ ]
+     * @return message as byte[]
      */
     public byte[] buildMessagePacket() {
       StringBuilder result = new StringBuilder();
@@ -246,7 +239,7 @@ public class Message implements Comparable, Serializable {
     }
 
     /**
-     * Gets type.
+     * Gets the message type.
      *
      * @return the type
      */
@@ -255,7 +248,7 @@ public class Message implements Comparable, Serializable {
     }
 
     /**
-     * Gets version.
+     * Gets the message version.
      *
      * @return the version
      */
@@ -264,7 +257,7 @@ public class Message implements Comparable, Serializable {
     }
 
     /**
-     * Gets peer id.
+     * Gets sender peer id.
      *
      * @return the peer id
      */
@@ -308,14 +301,27 @@ public class Message implements Comparable, Serializable {
         return body;
     }
 
+    /**
+      * Sets the message type
+      * @param type new type
+      */
     public void setType(MessageType type) {
         this.type = type;
     }
 
+    /**
+      * Sets the replication degree (used for backup)
+      * @param degree new rep degree
+      */
     public void setRepDegree(int degree) {
         this.repDegree = degree;
     }
 
+    /**
+      * Compares Message objects by the chunkNr
+      * @param o object to compare to
+      * @return difference between chunk numbers
+      */
     @Override
     public int compareTo(Object o) {
         return this.chunkNr - ((Message) o).getChunkIndex();

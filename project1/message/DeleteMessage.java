@@ -1,8 +1,5 @@
 package message;
 
-/**
- * Created by antonioalmeida on 30/03/2018.
- */
 public class DeleteMessage extends Message {
 
     /**

@@ -3,9 +3,6 @@ package message;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-/**
- * Created by antonioalmeida on 30/03/2018.
- */
 public class ChunkInfo implements Comparable<ChunkInfo>, Serializable {
 
     private int desiredReplicationDegree;
@@ -68,7 +65,7 @@ public class ChunkInfo implements Comparable<ChunkInfo>, Serializable {
     }
 
     /**
-     * Is degree satisfied boolean.
+     * Checks if observed replication degree has reached the desired level.
      *
      * @return the boolean
      */
@@ -77,7 +74,7 @@ public class ChunkInfo implements Comparable<ChunkInfo>, Serializable {
     }
 
     /**
-     * Is backed up by peer boolean.
+     * Checks if the chunk is being backed up by a particular peer.
      *
      * @param peerID the peer id
      * @return the boolean
@@ -87,7 +84,7 @@ public class ChunkInfo implements Comparable<ChunkInfo>, Serializable {
     }
 
     /**
-     * Add peer.
+     * Add peer that backs up the chunk.
      *
      * @param peerID the peer id
      */
@@ -95,6 +92,11 @@ public class ChunkInfo implements Comparable<ChunkInfo>, Serializable {
         peerList.add(peerID);
     }
 
+    /**
+      * Compares two ChunkInfo objects by their satisfaction degree (difference between actual and desired replication degree)
+      * @param o object to compare to
+      * @return difference between the two satisfaction degrees
+      */
     @Override
     public int compareTo(ChunkInfo o) {
         return this.getDegreeSatisfaction() - o.getDegreeSatisfaction();
