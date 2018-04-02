@@ -9,21 +9,23 @@ import java.rmi.registry.Registry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by antonioalmeida on 17/03/2018.
- */
 public class TestApp {
 
+    /**
+      * The host where the app will run
+      */
     private String host = null;
-    private int port = 1099; //Default port
-    private String name = null;
 
     /**
-     * Main.
-     *
-     * @param args the args
-     * @throws RemoteException the remote exception
-     */
+      * The host port where the app will run (default 1099)
+      */
+    private int port = 1099;
+
+    /**
+      * The host's remote name where the app will run
+      */
+    private String name = null;
+
     public static void main(final String args[]) throws RemoteException {
         //TODO: add input validation
         new TestApp(args);
@@ -58,6 +60,10 @@ public class TestApp {
         }
     }
 
+    /**
+      * Initiates the remote service given the host's information.
+      * @return remote stub
+      */
     private RemoteService initApp() {
         RemoteService stub = null;
 
@@ -72,6 +78,10 @@ public class TestApp {
         return stub;
     }
 
+    /**
+      * Parses the information of the remote host
+      * @param location host location given as //host[:port]/name
+      */
     private boolean parseLocation(String location) {
         // 1st group: host (mandatory)
         // 2nd group: port (optional)
