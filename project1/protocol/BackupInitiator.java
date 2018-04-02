@@ -46,7 +46,7 @@ public class BackupInitiator extends ProtocolInitiator {
 
         // notify peer to listen for these chunks' stored messages
         for(Message chunk : chunkList)
-            peer.getController().initBackedUpChunksInfo(chunk);
+            peer.getController().backedUpChunkListenForStored(chunk);
 
         do {
             sendMessages(chunkList, MAX_PUTCHUNK_DELAY_TIME);

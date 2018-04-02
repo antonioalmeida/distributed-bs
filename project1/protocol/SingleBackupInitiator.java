@@ -42,7 +42,7 @@ public class SingleBackupInitiator implements Runnable {
         }
 
         // notify controller to listen for this chunk's stored messages
-        controller.initBackedUpChunksInfo(message);
+        controller.backedUpChunkListenForStored(message);
 
         int tries = 0;
         int waitTime = 500;

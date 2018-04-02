@@ -80,7 +80,7 @@ public class ChunkInfo implements Comparable<ChunkInfo>, Serializable {
      * @return the boolean
      */
     public boolean isBackedUpByPeer(int peerID) {
-        return peerList.contains((Integer) peerID);
+        return peerList.contains(peerID);
     }
 
     /**

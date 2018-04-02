@@ -80,13 +80,6 @@ public class Receiver {
         }).start();
     }
 
-    /*
-    //TODO: Remove? Not being used anywhere
-    public void parseMessage(DatagramPacket packet) {
-        String request = new String(packet.getData()).trim();
-    }
-    */
-
     /**
      * Sends a message through the socket.
      *

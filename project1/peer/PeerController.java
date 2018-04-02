@@ -24,100 +24,100 @@ import java.util.concurrent.*;
 
 /**
   * Peer controller, where the peer's state is kept
-  */
+ */
 public class PeerController implements Serializable {
 
     /**
-      * The protocol version being executed
-      */
+     * The protocol version being executed
+     */
     private String peerVersion;
 
     /**
-      * The peer's ID
-      */
+     * The peer's ID
+     */
     private int peerID;
 
     /**
-      * The dispatcher
-      */
+     * The dispatcher
+     */
     private transient Dispatcher dispatcher;
 
     /**
-      * The control channel receiver
-      */
+     * The control channel receiver
+     */
     private transient Receiver MCReceiver;
 
     /**
-      * The backup channel receiver
-      */
+     * The backup channel receiver
+     */
     private transient Receiver MDBReceiver;
 
     /**
-      * The restore channel receiver
-      */
+     * The restore channel receiver
+     */
     private transient Receiver MDRReceiver;
 
     /**
-      * Peer's file system manager
-      */
+     * Peer's file system manager
+     */
     private FileSystem fileSystem;
 
     /**
-      * Is the peer running the enhanced backup protocol?
-      */
+     * Is the peer running the enhanced backup protocol?
+     */
     private boolean backupEnhancement;
 
     /**
-      * Is the peer running the enhanced restore protocol?
-      */
+     * Is the peer running the enhanced restore protocol?
+     */
     private boolean restoreEnhancement;
 
     private transient ScheduledExecutorService putChunkThreadPool;
 
     /**
-      *  Socket controller used in enhanced restore protocol
-      */
+     *  Socket controller used in enhanced restore protocol
+     */
     private transient SocketController TCPController;
 
     /**
-      * Locally stored chunks. Key = fileID, Value = ArrayList of chunk indexes
-      */
+     * Locally stored chunks. Key = fileID, Value = ArrayList of chunk indexes
+     */
     private ConcurrentHashMap<String, ArrayList<Integer>> storedChunks;
 
     /**
-      * Useful information of locally stored chunks. Key = <fileID, chunk nr>, Value = Information (observed and desired rep degrees)
-      */
+     * Useful information of locally stored chunks. Key = <fileID, chunk nr>, Value = Information (observed and desired rep degrees)
+     */
     private ConcurrentHashMap<Pair<String, Integer>, ChunkInfo> storedChunksInfo;
 
     /**
-      * Backed up files on the LAN. Key = filename, Value = <fileID, nr. chunks>
-      */
+     * Backed up files on the LAN. Key = filename, Value = <fileID, nr. chunks>
+     */
     private ConcurrentHashMap<String, Pair<String, Integer>> backedUpFiles;
 
     /**
-      * Useful information of backed up files on the LAN. Key = <fileID, chunk nr>, Value = Information (observed and desired rep degree)
-      */
+     * Useful information of backed up files on the LAN. Key = <fileID, chunk nr>, Value = Information (observed and desired rep degree)
+     */
     private ConcurrentHashMap<Pair<String, Integer>, ChunkInfo> backedUpChunksInfo;
 
     /**
-      * Files being restored. Key = fileID, Value = chunks
-      */
+     * Files being restored. Key = fileID, Value = chunks
+     */
     private ConcurrentHashMap<String, ConcurrentSkipListSet<Message>> restoringFiles;
 
     /**
-      * Useful information on files being restored. Key = fileID, Value = <filename, chunk amount>
-      */
+     * Useful information on files being restored. Key = fileID, Value = <filename, chunk amount>
+     */
     private ConcurrentHashMap<String, Pair<String, Integer>> restoringFilesInfo;
 
     /**
-      * Useful information on files being restored by other peers. Key = fileID, Value = ArrayList of chunk numbers
-      */
+     * Useful information on files being restored by other peers. Key = fileID, Value = ArrayList of chunk numbers
+     */
     private ConcurrentHashMap<String, ArrayList<Integer>> getChunkRequestsInfo;
 
     /**
-      * Useful information about received STORED messages. Used in backup protocol enhancement. Key = <fileID, chunk number>, Value = true if received, false otherwise
-      */
-    private ConcurrentHashMap< Pair<String, Integer>, Boolean> storedRepliesInfo;
+     * Useful information about received STORED messages. Used in backup protocol enhancement. Key = <fileID, chunkInfo>, Value = Information (observed and desired rep degree)
+     */
+    private ConcurrentHashMap<Pair<String, Integer>, ChunkInfo> storedRepliesInfo;
 
     /**
      * Instantiates a new Peer controller.
@@ -146,6 +146,8 @@ public class PeerController implements Serializable {
 
         getChunkRequestsInfo = new ConcurrentHashMap<>();
 
+        storedRepliesInfo = new ConcurrentHashMap<>();
+
         //TODO: make proper verification
         if(peerVersion.equals("1.0")) {
             backupEnhancement = false;
@@ -156,8 +158,6 @@ public class PeerController implements Serializable {
             backupEnhancement = true;
             restoreEnhancement = true;
         }
-
-        storedRepliesInfo = new ConcurrentHashMap<>();
 
         fileSystem = new FileSystem(peerVersion, peerID, Globals.MAX_PEER_STORAGE, Globals.PEER_FILESYSTEM_DIR + "/" + peerID);
 
@@ -207,10 +207,10 @@ public class PeerController implements Serializable {
             Pair<String, Integer> key = new Pair<>(fileID, chunkIndex);
 
             if(storedRepliesInfo.containsKey(key)) {
-                //if received a stored message meanwhile, ignore (and remove storedRepliesInfo)
-                if(storedRepliesInfo.get(key)) {
-                    System.out.println("Received a STORED message for " + message.getChunkIndex() + " meanwhile, ignoring request");
-                    storedRepliesInfo.remove(key);
+                ChunkInfo chunkInfo = storedRepliesInfo.get(key);
+
+                if(storedRepliesInfo.get(key).isDegreeSatisfied()) {
+                    System.out.println("Received enough STORED messages for " + message.getChunkIndex() + " meanwhile, ignoring request");
                     return;
                 }
             }
@@ -219,6 +219,7 @@ public class PeerController implements Serializable {
         // check if chunks from this file are already being saved
         storedChunks.putIfAbsent(message.getFileID(), new ArrayList<>());
 
+        //TODO: init this somewhere else
         Pair<String, Integer> chunkInfoKey = new Pair<>(message.getFileID(), message.getChunkIndex());
         storedChunksInfo.putIfAbsent(chunkInfoKey, new ChunkInfo(message.getRepDegree(), 1));
 
@@ -281,9 +282,12 @@ public class PeerController implements Serializable {
         }
 
         if(backupEnhancement && !message.getVersion().equals("1.0")) {
-            //if currently listening for this chunk's stored message, set found to true
-            if(storedRepliesInfo.containsKey(key))
-                storedRepliesInfo.put(key, true);
+            if(storedRepliesInfo.containsKey(key) && !storedRepliesInfo.get(key).isBackedUpByPeer(message.getPeerID())) {
+                chunkInfo = storedRepliesInfo.get(key);
+                chunkInfo.incActualReplicationDegree();
+                chunkInfo.addPeer(message.getPeerID());
+                storedRepliesInfo.put(key, chunkInfo);
+            }
         }
     }
 
@@ -450,13 +454,18 @@ public class PeerController implements Serializable {
     }
 
     /**
-     * Initializes backed up chunk information.
+     * Starts listening to stored messages for a chunk that the peer is backing up
      *
      * @param chunk the chunk
      */
-    public void initBackedUpChunksInfo(Message chunk) {
+    public void backedUpChunkListenForStored(Message chunk) {
         Pair<String, Integer> key = new Pair<>(chunk.getFileID(), chunk.getChunkIndex());
         backedUpChunksInfo.putIfAbsent(key, new ChunkInfo(chunk.getRepDegree(), 0));
+    }
+
+    public void listenForStoredReplies(Message chunk) {
+        Pair<String, Integer> key = new Pair<>(chunk.getFileID(), chunk.getChunkIndex());
+        storedRepliesInfo.putIfAbsent(key, new ChunkInfo(chunk.getRepDegree(), 0));
     }
 
     /**
@@ -576,17 +585,6 @@ public class PeerController implements Serializable {
         String filePath = restoringFilesInfo.get(fileID).getKey();
 
         fileSystem.saveFile(filePath, fileBody);
-    }
-
-    /**
-     * Listener for chunk store replies.
-     *
-     * @param fileID     the file id
-     * @param chunkIndex the chunk index
-     */
-    public void listenForStoreReplies(String fileID, int chunkIndex) {
-        Pair<String, Integer> key = new Pair<>(fileID, chunkIndex);
-        storedRepliesInfo.putIfAbsent(key, false);
     }
 
     /**
