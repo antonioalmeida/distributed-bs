@@ -8,9 +8,6 @@ import peer.Peer;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 
-/**
- * Created by antonioalmeida on 28/03/2018.
- */
 public class RestoreInitiator extends ProtocolInitiator {
 
     // TODO: remove this
@@ -30,6 +27,9 @@ public class RestoreInitiator extends ProtocolInitiator {
         this.filePath = filePath;
     }
 
+    /**
+      * Method to be executed when thread starts running. Executes the restore protocol as an initiator peer
+      */
     @Override
     public void run() {
         String fileID = peer.getController().getBackedUpFileID(filePath);

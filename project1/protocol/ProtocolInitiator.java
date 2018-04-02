@@ -8,15 +8,15 @@ import utils.Utils;
 import java.util.ArrayList;
 
 /**
- * Created by antonioalmeida on 21/03/2018.
- */
+  * Base protocol initiator
+  */
 public abstract class ProtocolInitiator implements Runnable {
     /**
-     * The Peer.
+     * The peer.
      */
     protected Peer peer;
     /**
-     * The Channel.
+     * The channel.
      */
     protected Channel channel;
 
@@ -32,7 +32,7 @@ public abstract class ProtocolInitiator implements Runnable {
     }
 
     /**
-     * Send messages.
+     * Send a list of messages to the channel.
      *
      * @param messageList  the message list
      * @param maxDelayTime the max delay time

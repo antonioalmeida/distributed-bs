@@ -2,9 +2,6 @@ package protocol;
 
 import peer.Peer;
 
-/**
- * Created by antonioalmeida on 30/03/2018.
- */
 public class ReclaimInitiator extends ProtocolInitiator {
 
     private long space;
@@ -20,6 +17,9 @@ public class ReclaimInitiator extends ProtocolInitiator {
         this.space = space;
     }
 
+    /**
+      * Method to be executed when thred starts running. Executes the reclaim protocol as an initiator peer
+      */
     @Override
     public void run() {
         if(peer.getController().reclaimSpace(space))

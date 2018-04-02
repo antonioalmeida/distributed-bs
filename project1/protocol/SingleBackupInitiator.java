@@ -6,15 +6,20 @@ import receiver.Receiver;
 import peer.PeerController;
 import utils.Globals;
 
-/**
- * Created by antonioalmeida on 01/04/2018.
- */
 public class SingleBackupInitiator implements Runnable {
 
     private Message message;
     private Receiver receiver;
     private PeerController controller;
 
+    /**
+      * Instantiates a new SingleBackupInitiator protocol
+      *
+      * @param controller the peer's controller
+      * @param chunk the target chunk
+      * @param replicationDegree the desired replication degree
+      * @param receiver the helper receiver
+      */
     public SingleBackupInitiator(PeerController controller, Message chunk, int replicationDegree, Receiver receiver) {
         //create putchunk message from chunk
         chunk.setRepDegree(replicationDegree);
@@ -25,10 +30,11 @@ public class SingleBackupInitiator implements Runnable {
         this.receiver = receiver;
     }
 
+    /**
+      * Method to be executed when thread starts running. Executes the backup protocol for a specific chunk as the initiator peer
+      */
     @Override
     public void run() {
-        System.out.println("RUNNING BITCHES");
-
         //if chunk degree was satisfied meanwhile, cancel
         if(controller.getBackedUpChunkRepDegree(message) >= message.getRepDegree()) {
             System.out.println("Chunk " + message.getChunkIndex() + " satisfied meanwhile, canceling");
@@ -52,6 +58,13 @@ public class SingleBackupInitiator implements Runnable {
         } while(!confirmStoredMessage(message, waitTime));
     }
 
+    /**
+      * Checks if the desired replication degree for the chunk has been met
+      *
+      * @param message message containing information about the chunk
+      * @param waitTime max delay before checking
+      * @return true if desired replication degree has been met, false otherwise
+      */
     private boolean confirmStoredMessage(Message message, int waitTime) {
         try {
             //TODO: remove sleeps

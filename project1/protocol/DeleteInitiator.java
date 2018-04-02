@@ -8,9 +8,6 @@ import utils.Utils;
 
 import java.io.File;
 
-/**
- * Created by antonioalmeida on 30/03/2018.
- */
 public class DeleteInitiator extends ProtocolInitiator {
 
     private String filePath;
@@ -27,6 +24,9 @@ public class DeleteInitiator extends ProtocolInitiator {
         this.filePath = filePath;
     }
 
+    /**
+      * Method to be executed when thread starts running. Executes the delete protocol as an initiator peer
+      */
     @Override
     public void run() {
         File file = new File(filePath);

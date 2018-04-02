@@ -8,9 +8,6 @@ import utils.Globals;
 
 import java.util.ArrayList;
 
-/**
- * Created by antonioalmeida on 21/03/2018.
- */
 public class BackupInitiator extends ProtocolInitiator {
 
     //TODO: remove this
@@ -33,6 +30,9 @@ public class BackupInitiator extends ProtocolInitiator {
         this.replicationDegree = replicationDegree;
     }
 
+    /**
+      * Method executed when thread starts running. Executes the backup protocol as an initiator peer.
+      */
     @Override
     public void run() {
         ChunkCreator creator = new ChunkCreator(filePath, replicationDegree, peer.getPeerID(), peer.getProtocolVersion());
@@ -63,6 +63,13 @@ public class BackupInitiator extends ProtocolInitiator {
         System.out.println("File " + filePath + " backed up");
     }
 
+    /**
+      * Checks if replication degrees have been satisfied for given chunks
+      *
+      * @param chunkList chunks to be verified
+      * @param waitTime delay before starting to check
+      * @return true if for every chunk observed rep degree >= desired rep degree
+      */
     private boolean confirmStoredMessages(ArrayList<Message> chunkList, int waitTime) {
         try {
             //TODO: remove sleeps
