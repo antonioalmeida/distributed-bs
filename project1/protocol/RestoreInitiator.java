@@ -5,6 +5,7 @@ import message.GetChunkMessage;
 import message.Message;
 import peer.Peer;
 
+import java.net.ServerSocket;
 import java.util.ArrayList;
 
 /**
@@ -12,7 +13,8 @@ import java.util.ArrayList;
  */
 public class RestoreInitiator extends ProtocolInitiator {
 
-    private static final int MAX_GETCHUNK_DELAY_TIME = 100;
+    // TODO: remove this
+    private static final int MAX_GETCHUNK_DELAY_TIME = 0;
 
     private String filePath;
 
@@ -52,5 +54,4 @@ public class RestoreInitiator extends ProtocolInitiator {
 
         sendMessages(getChunkList, MAX_GETCHUNK_DELAY_TIME);
     }
-
 }

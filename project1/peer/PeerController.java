@@ -8,6 +8,7 @@ import javafx.util.Pair;
 import protocol.SingleBackupInitiator;
 import receiver.Dispatcher;
 import receiver.Receiver;
+import receiver.SocketController;
 import storage.FileSystem;
 import utils.Globals;
 import utils.Utils;
@@ -15,6 +16,7 @@ import utils.Utils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
@@ -38,7 +40,12 @@ public class PeerController implements Serializable {
 
     private boolean backupEnhancement;
 
-    private transient ScheduledExecutorService putchunkThreadPool;
+    private boolean restoreEnhancement;
+
+    private transient ScheduledExecutorService putChunkThreadPool;
+
+    // for restore enhancement
+    private transient SocketController TCPController;
 
     // Stored chunks
     // < fileID, chunkIndex >
@@ -102,11 +109,14 @@ public class PeerController implements Serializable {
 
         //TODO: make proper verification
         if(peerVersion != "1.0") {
-            System.out.println("BACKUP enhancement activated");
+            System.out.println("Enhancements activated");
             backupEnhancement = true;
+            restoreEnhancement = true;
         }
-        else
+        else {
             backupEnhancement = false;
+            restoreEnhancement = false;
+        }
         
         storedRepliesInfo = new ConcurrentHashMap<>();
 
@@ -127,7 +137,10 @@ public class PeerController implements Serializable {
             e.printStackTrace();
         }
 
-        putchunkThreadPool = Executors.newScheduledThreadPool(50);
+        putChunkThreadPool = Executors.newScheduledThreadPool(50);
+
+        if(restoreEnhancement)
+            TCPController = new SocketController(MDRPort);
     }
 
     /**
@@ -230,7 +243,7 @@ public class PeerController implements Serializable {
      *
      * @param message the message
      */
-    public void handleGetChunkMessage(Message message) {
+    public void handleGetChunkMessage(Message message, InetAddress sourceAddress) {
         System.out.println("Received GetChunk Message: " + message.getChunkIndex());
 
         String fileID = message.getFileID();
@@ -257,7 +270,11 @@ public class PeerController implements Serializable {
             return;
 
         Message chunkMessage = fileSystem.retrieveChunk(fileID, chunkIndex);
-        MDRReceiver.sendWithRandomDelay(0, Globals.MAX_CHUNK_WAITING_TIME, chunkMessage);
+
+        if(restoreEnhancement && message.getVersion() != "1.0")
+            TCPController.sendMessage(chunkMessage, sourceAddress);
+        else
+            MDRReceiver.sendWithRandomDelay(0, Globals.MAX_CHUNK_WAITING_TIME, chunkMessage);
     }
 
     /**
@@ -345,7 +362,7 @@ public class PeerController implements Serializable {
                 System.out.println("Chunk " + message.getChunkIndex() + " not satisfied anymore.");
                 Message chunk = fileSystem.retrieveChunk(message.getFileID(), message.getChunkIndex());
 
-                putchunkThreadPool.schedule( new SingleBackupInitiator(this, chunk, chunkInfo.getDesiredReplicationDegree(), MDBReceiver),
+                putChunkThreadPool.schedule( new SingleBackupInitiator(this, chunk, chunkInfo.getDesiredReplicationDegree(), MDBReceiver),
                 Utils.getRandomBetween(0, Globals.MAX_REMOVED_WAITING_TIME), TimeUnit.MILLISECONDS);
             }
         }
@@ -542,6 +559,10 @@ public class PeerController implements Serializable {
         }
 
         return stream.toByteArray();
+    }
+
+    public Dispatcher getDispatcher() {
+        return dispatcher;
     }
 
     @Override

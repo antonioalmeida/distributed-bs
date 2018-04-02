@@ -2,6 +2,7 @@ package peer;
 
 import receiver.Channel;
 import protocol.*;
+import receiver.SocketReceiver;
 import rmi.RemoteService;
 
 import java.io.*;
@@ -189,6 +190,12 @@ public class Peer implements RemoteService {
 
     @Override
     public void recoverFile(String filePath) throws RemoteException {
+        //TODO: make proper verification
+        if(version != "1.0") {
+            System.out.println("Starting enhanced restore protocol");
+            threadPool.submit(new SocketReceiver(MDRPort, controller.getDispatcher()));
+        }
+
         ProtocolInitiator recoverInstance = new RestoreInitiator(this, filePath, MC);
         threadPool.submit(recoverInstance);
     }

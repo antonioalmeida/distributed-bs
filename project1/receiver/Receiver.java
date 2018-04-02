@@ -71,7 +71,7 @@ public class Receiver {
                 try {
                     //TODO: ignore messages sent by itself
                     this.socket.receive(multicastPacket);
-                    this.dispatcher.handleMessage(multicastPacket.getData(), multicastPacket.getLength());
+                    this.dispatcher.handleMessage(multicastPacket.getData(), multicastPacket.getLength(), multicastPacket.getAddress());
                 } catch (IOException e) {
                     System.out.println("Error receiving multicast message");
                     e.printStackTrace();
