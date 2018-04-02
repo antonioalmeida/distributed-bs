@@ -21,23 +21,26 @@ public class FileSystem {
 
     private long usedStorage;
 
-    private Peer peer;
+    private String peerVersion;
+    private int peerID;
 
     private String baseDirectory;
     private String backupDirectory;
     private String restoreDirectory;
 
     /**
-     * Instantiates a new File system.
      *
-     * @param peer          the peer
-     * @param maxStorage    the max storage
-     * @param baseDirectory the base directory
+     * @param peerVersion
+     * @param peerID
+     * @param maxStorage
+     * @param baseDirectory
      */
-    public FileSystem(Peer peer, long maxStorage, String baseDirectory) {
+    public FileSystem(String peerVersion, int peerID, long maxStorage, String baseDirectory) {
         this.maxStorage = maxStorage;
         this.baseDirectory = baseDirectory + "/";
-        this.peer = peer;
+
+        this.peerVersion = peerVersion;
+        this.peerID = peerID;
 
         this.backupDirectory = baseDirectory + BACKUP_DIRECTORY;
         this.restoreDirectory = baseDirectory + RESTORE_DIRECTORY;
@@ -88,7 +91,7 @@ public class FileSystem {
             e.printStackTrace();
         }
 
-        Message chunk = new ChunkMessage(peer.getProtocolVersion(), peer.getPeerID(), fileID, chunkIndex, buf);
+        Message chunk = new ChunkMessage(peerVersion, peerID, fileID, chunkIndex, buf);
         return chunk;
     }
 

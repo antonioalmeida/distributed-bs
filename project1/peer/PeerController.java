@@ -24,7 +24,8 @@ import java.util.concurrent.*;
  */
 public class PeerController {
 
-    private Peer peer;
+    private String peerVersion;
+    private int peerID;
 
     private Dispatcher dispatcher;
 
@@ -74,18 +75,20 @@ public class PeerController {
     /**
      * Instantiates a new Peer controller.
      *
-     * @param peer       the peer
-     * @param MCAddress  the mc address
-     * @param MCPort     the mc port
-     * @param MDBAddress the mdb address
-     * @param MDBPort    the mdb port
-     * @param MDRAddress the mdr address
-     * @param MDRPort    the mdr port
+     * @param peerVersion the peers's protocol version
+     * @param peerID      the peer's ID
+     * @param MCAddress   the mc address
+     * @param MCPort      the mc port
+     * @param MDBAddress  the mdb address
+     * @param MDBPort     the mdb port
+     * @param MDRAddress  the mdr address
+     * @param MDRPort     the mdr port
      */
-    public PeerController(Peer peer, String MCAddress, int MCPort, String MDBAddress, int MDBPort, String MDRAddress, int MDRPort) {
-        this.peer = peer;
+    public PeerController(String peerVersion, int peerID, String MCAddress, int MCPort, String MDBAddress, int MDBPort, String MDRAddress, int MDRPort) {
+        this.peerVersion = peerVersion;
+        this.peerID = peerID;
 
-        this.dispatcher = new Dispatcher(this, peer.getPeerID());
+        this.dispatcher = new Dispatcher(this, peerID);
 
         // subscribe to multicast channels
         try {
@@ -108,7 +111,7 @@ public class PeerController {
         getChunkRequestsInfo = new ConcurrentHashMap<>();
 
         //TODO: make proper verification
-        if(peer.getProtocolVersion() != "1.0") {
+        if(peerVersion != "1.0") {
             System.out.println("BACKUP enhancement activated");
             backupEnhancement = true;
         }
@@ -117,7 +120,7 @@ public class PeerController {
         
         storedRepliesInfo = new ConcurrentHashMap<>();
 
-        fileSystem = new FileSystem(peer, Globals.MAX_PEER_STORAGE, Globals.PEER_FILESYSTEM_DIR + "/" + peer.getPeerID());
+        fileSystem = new FileSystem(peerVersion, peerID, Globals.MAX_PEER_STORAGE, Globals.PEER_FILESYSTEM_DIR + "/" + peerID);
     }
 
     /**
@@ -165,7 +168,7 @@ public class PeerController {
         else
             System.out.println("Already stored chunk, sending STORED anyway.");
 
-        Message storedMessage = new StoredMessage(message.getVersion(), peer.getPeerID(), message.getFileID(), message.getChunkIndex());
+        Message storedMessage = new StoredMessage(message.getVersion(), peerID, message.getFileID(), message.getChunkIndex());
 
         MCReceiver.sendWithRandomDelay(0, Globals.MAX_STORED_WAITING_TIME, storedMessage);
 
@@ -363,7 +366,7 @@ public class PeerController {
             System.out.println("Deleting " + fileID + " - " + chunkIndex);
             deleteChunk(fileID, chunkIndex, true);
 
-            Message removedMessage = new RemovedMessage(peer.getProtocolVersion(), peer.getPeerID(), fileID, chunkIndex);
+            Message removedMessage = new RemovedMessage(peerVersion, peerID, fileID, chunkIndex);
             MCReceiver.sendMessage(removedMessage);
         }
 

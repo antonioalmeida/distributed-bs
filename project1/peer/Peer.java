@@ -71,7 +71,7 @@ public class Peer implements RemoteService {
         this.MDBAddress = args[5]; this.MDBPort = Integer.parseInt(args[6]);
         this.MDRAddress = args[7]; this.MDRPort = Integer.parseInt(args[8]);
 
-        this.controller = new PeerController(this, MCAddress, MCPort, MDBAddress, MDBPort, MDRAddress, MDRPort);
+        this.controller = new PeerController(version, peerID, MCAddress, MCPort, MDBAddress, MDBPort, MDRAddress, MDRPort);
 
         this.MC = new Channel(args[3], Integer.parseInt(args[4]));
         this.MDB = new Channel(args[5], Integer.parseInt(args[6]));
