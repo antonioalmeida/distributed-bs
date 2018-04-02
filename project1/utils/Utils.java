@@ -7,15 +7,15 @@ import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * The type Utils.
+ * Utility functions
  */
 public class Utils {
 
     /**
-     * Gets file id.
+     * Generates a SHA256 based hash given a file pathname (after also retrieving some of its metadata)
      *
-     * @param file the file
-     * @return the file id
+     * @param file file pathname
+     * @return hashed fileID
      */
     public static final String getFileID(File file) {
         String fileUniqueStr = file.lastModified() + file.getName();
@@ -34,7 +34,7 @@ public class Utils {
     }
 
     /**
-     * Gets random time.
+     * Gets random time up to a maximum value.
      *
      * @param max the max
      * @return the random time
@@ -44,11 +44,11 @@ public class Utils {
     }
 
     /**
-     * Gets random between.
+     * Gets a random number in a specific range.
      *
      * @param min the min
      * @param max the max
-     * @return the random between
+     * @return the random between them
      */
     public static final int getRandomBetween(int min, int max) {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
