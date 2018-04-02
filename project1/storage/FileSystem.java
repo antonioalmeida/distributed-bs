@@ -9,19 +9,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-/**
- * Created by antonioalmeida on 26/03/2018.
- */
 public class FileSystem implements Serializable {
 
     private static final String BACKUP_DIRECTORY = "backup";
     private static final String RESTORE_DIRECTORY = "restore";
 
+    /**
+      * Peer reserved space for backing chunks
+      */
     private long maxStorage;
 
+    /**
+      * Currently used space for backing chunks
+      */
     private long usedStorage;
 
+    /**
+      * Protocol version being used
+      */
     private String peerVersion;
+
+    /**
+      * Peer ID
+      */
     private int peerID;
 
     private String baseDirectory;
@@ -29,7 +39,7 @@ public class FileSystem implements Serializable {
     private String restoreDirectory;
 
     /**
-     *
+     * Initiates the file system manager
      * @param peerVersion
      * @param peerID
      * @param maxStorage
@@ -49,10 +59,10 @@ public class FileSystem implements Serializable {
     }
 
     /**
-     * Store chunk boolean.
+     * Tries to store a chunk
      *
-     * @param chunk the chunk
-     * @return the boolean
+     * @param chunk the chunk to store
+     * @return true if successful, false otherwise
      */
     public synchronized boolean storeChunk(Message chunk) {
         if(!hasFreeSpace(chunk.getBody().length))
@@ -75,11 +85,11 @@ public class FileSystem implements Serializable {
     }
 
     /**
-     * Retrieve chunk message.
+     * Retrieves a chunk stored locally.
      *
-     * @param fileID     the file id
+     * @param fileID     the original file's id
      * @param chunkIndex the chunk index
-     * @return the message
+     * @return message with the chunk
      */
     public synchronized Message retrieveChunk(String fileID, int chunkIndex) {
         Path chunkPath = Paths.get(this.backupDirectory + "/"+fileID+"_"+chunkIndex);
@@ -96,10 +106,10 @@ public class FileSystem implements Serializable {
     }
 
     /**
-     * Save file.
+     * Saves a file locally
      *
-     * @param filePath the file path
-     * @param body     the body
+     * @param filePath the path to save the file
+     * @param body     the content to be saved
      */
     public synchronized void saveFile(String filePath, byte[] body) {
         Path path = Paths.get(this.restoreDirectory + "/" + filePath);
@@ -118,11 +128,11 @@ public class FileSystem implements Serializable {
     }
 
     /**
-     * Delete chunk.
+     * Deletes a chunk (if present).
      *
      * @param fileID           the file id
      * @param chunkIndex       the chunk index
-     * @param updateMaxStorage the update max storage
+     * @param updateMaxStorage true if maxStorage should be updated, false otherwise
      */
     public synchronized void deleteChunk(String fileID, int chunkIndex, boolean updateMaxStorage) {
         Path path = Paths.get(this.backupDirectory+"/"+fileID+"_"+chunkIndex);
@@ -142,6 +152,9 @@ public class FileSystem implements Serializable {
             maxStorage -= savedStorage;
     }
 
+    /**
+      * Initiates local directories to structure saved data
+      */
     private void initDirectories() {
         Path backupPath = Paths.get(this.backupDirectory);
         Path restorePath = Paths.get(this.restoreDirectory);
@@ -157,6 +170,11 @@ public class FileSystem implements Serializable {
         }
     }
 
+    /**
+      * Checks if peer still has free space to backup a specific chunk
+      * @param size size of chunk to be stored
+      * @return true if usedStorage + size > maxStorage, false otherwise
+      */
     private boolean hasFreeSpace(long size) {
         return usedStorage + size > maxStorage;
     }

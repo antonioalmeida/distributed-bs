@@ -8,11 +8,7 @@ import utils.Utils;
 import java.io.*;
 import java.util.ArrayList;
 
-/**
- * Created by antonioalmeida on 26/03/2018.
- */
 public class ChunkCreator {
-
     private ArrayList<Message> chunkList;
 
     private int nChunks;
@@ -42,6 +38,10 @@ public class ChunkCreator {
         createChunks(file);
     }
 
+    /**
+      * Creates the chunk list for a given file
+      * @param file file to be split
+      */
     private void initChunkList(File file) {
         long fileSize = file.length();
 
@@ -49,6 +49,10 @@ public class ChunkCreator {
         this.chunkList = new ArrayList<>();
     }
 
+    /**
+      * Splits a file in chunks
+      * @param file file to be split
+      */
     private void createChunks(File file) {
         try {
             FileInputStream fileStream = new FileInputStream(file);
