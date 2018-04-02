@@ -11,9 +11,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by antonioalmeida on 27/03/2018.
- */
 public class Dispatcher {
 
     private final int MAX_DISPATCHER_THREADS = 50;
@@ -33,6 +30,12 @@ public class Dispatcher {
         this.controller = controller;
     }
 
+    /**
+      * Handles a message.
+      *
+      * @param messagem message to be handled
+      * @param address address used in getchunk message handling
+      */
     public void handleMessage(Message message, InetAddress address) {
         //Ignore messages from self
         if(message.getPeerID().equals(this.peerID))
@@ -42,10 +45,11 @@ public class Dispatcher {
     }
 
     /**
-     * Handle message.
+     * Handles a message.
      *
-     * @param buf  the buf
-     * @param size the size
+     * @param buf  the buf representing the message
+     * @param size the message's size
+     * @param address address used in getchunk message handling
      */
     public void handleMessage(byte[] buf, int size, InetAddress address) {
         Message message = new Message(buf, size);
@@ -55,6 +59,12 @@ public class Dispatcher {
         dispatchMessage(message, address);
     }
 
+    /**
+      * Dispatches a message handler to the thread pool
+      *
+      * @param message message to be dispatched
+      * @param address address used in getchunk message dispatch
+      */
     public void dispatchMessage(Message message, InetAddress address) {
         int randomWait;
 

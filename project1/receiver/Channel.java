@@ -7,23 +7,20 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
-/**
- * Created by antonioalmeida on 27/03/2018.
- */
 public class Channel {
 
     /**
-     * The Address.
+     * The channel's address.
      */
-// Multicast message is defined by its address and port
     protected InetAddress address;
+
     /**
-     * The Port.
+     * The channel's port.
      */
     protected int port;
 
     /**
-     * The Socket.
+     * The channel's socket.
      */
     protected MulticastSocket socket;
 
@@ -32,7 +29,7 @@ public class Channel {
      *
      * @param address the address
      * @param port    the port
-     * @throws IOException the io exception
+     * @throws IOException
      */
     public Channel(String address, int port) throws IOException {
         this.socket = new MulticastSocket(port);
@@ -45,9 +42,9 @@ public class Channel {
     }
 
     /**
-     * Send message.
+     * Sends a message given as a string to the channel.
      *
-     * @param message the message
+     * @param message the message to be sent
      * @throws IOException the io exception
      */
     public void sendMessage(String message) throws IOException {
@@ -56,9 +53,9 @@ public class Channel {
     }
 
     /**
-     * Send message.
+     * Sends a message encapsulated in a Message object to the channel
      *
-     * @param message the message
+     * @param message the message to be sent
      */
     public void sendMessage(Message message) {
         byte[] rbuf = message.buildMessagePacket();

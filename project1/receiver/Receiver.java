@@ -9,23 +9,20 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
-/**
- * Created by antonioalmeida on 07/03/2018.
- */
 public class Receiver {
 
     /**
-     * The Address.
+     * The address.
      */
-// Multicast message is defined by its address and port
+
     protected InetAddress address;
     /**
-     * The Port.
+     * The port.
      */
     protected int port;
 
     /**
-     * The Socket.
+     * The socket.
      */
     protected MulticastSocket socket;
 
@@ -60,6 +57,9 @@ public class Receiver {
         System.out.println("Joined Multicast Receiver " + address + ":" + port);
     }
 
+    /**
+      * Starts listening for messages, dispatching them as they are received
+      */
     private void startListening() {
         new Thread(() -> {
             byte[] mbuf = new byte[65535];
@@ -80,19 +80,17 @@ public class Receiver {
         }).start();
     }
 
-    /**
-     * Parse message.
-     *
-     * @param packet the packet
-     */
+    /*
+    //TODO: Remove? Not being used anywhere
     public void parseMessage(DatagramPacket packet) {
         String request = new String(packet.getData()).trim();
     }
+    */
 
     /**
-     * Send message.
+     * Sends a message through the socket.
      *
-     * @param message the message
+     * @param message the message to be sent
      */
     public void sendMessage(Message message) {
         byte[] rbuf = message.buildMessagePacket();
@@ -105,11 +103,11 @@ public class Receiver {
     }
 
     /**
-     * Send with random delay.
+     * Sends a message with random delay.
      *
-     * @param min     the min
-     * @param max     the max
-     * @param message the message
+     * @param min     the min delay
+     * @param max     the max delay
+     * @param message the message to be sent
      */
     public void sendWithRandomDelay(int min, int max, Message message) {
         int random = Utils.getRandomBetween(min, max);

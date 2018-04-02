@@ -11,9 +11,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-/**
- * Created by antonioalmeida on 02/04/2018.
- */
 public class SocketController {
 
     private static final int MAX_TCP_SOCKET_THREADS = 50;
@@ -22,10 +19,21 @@ public class SocketController {
 
     private int port;
 
+    /**
+      * Instantiates a new SocketController
+      *
+      * @param port controller port
+      */
     public SocketController(int port) {
         this.port = port;
     }
 
+    /**
+      * Send a message
+      *
+      * @param message message to be sent
+      * @param address destination address
+      */
     public void sendMessage(Message message, InetAddress address) {
         threadPool.submit(() -> {
             Socket socket = null;

@@ -11,9 +11,6 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * Created by antonioalmeida on 02/04/2018.
- */
 public class SocketReceiver implements Runnable {
 
     private static final int MAX_TCP_SOCKETS = 50;
@@ -24,6 +21,12 @@ public class SocketReceiver implements Runnable {
 
     private Dispatcher dispatcher;
 
+    /**
+      * Instantiates a socket receiver
+      *
+      * @param port receiver port
+      * @param dispatcher receiver dispatcher
+      */
     public SocketReceiver(int port, Dispatcher dispatcher) {
         this.dispatcher = dispatcher;
         try {
@@ -33,6 +36,9 @@ public class SocketReceiver implements Runnable {
         }
     }
 
+    /**
+      * Method ran when thread starts executing. Submits handler to the thread pool
+      */
     @Override
     public void run() {
         while (true) {
@@ -53,6 +59,13 @@ public class SocketReceiver implements Runnable {
         }
     }
 
+    /**
+      * Socket handler.
+      *
+      * @param socket the socket
+      * @throws IOException
+      * @throws ClassNotFoundException
+      */
     private void socketHandler(Socket socket) throws IOException, ClassNotFoundException {
         ObjectInputStream stream = null;
 

@@ -46,7 +46,6 @@ public class Message implements Comparable, Serializable {
      *
      * @param str the header
      */
-//Processes a message's header line
     public void processHeader(String str) {
       String[] header = str.split("\\s+");
       switch(header[0]) {
@@ -81,7 +80,7 @@ public class Message implements Comparable, Serializable {
     }
 
 /*
-    //Processes a message given as a String
+    //TODO: Remove? Not being used anywhere (I think)
     public Message(String messageStr) {
         //Should split into two elements: 0 = header, 1 = body (if present)
         String[] messageComponents = messageStr.split("\\R\\R", 2);
