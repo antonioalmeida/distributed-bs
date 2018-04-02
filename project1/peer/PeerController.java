@@ -354,10 +354,12 @@ public class PeerController implements Serializable {
     /**
      * Reclaim space boolean.
      *
-     * @param targetSpace the target space
+     * @param targetSpaceKb the target space in KB
      * @return the boolean
      */
-    public boolean reclaimSpace(long targetSpace) {
+    public boolean reclaimSpace(long targetSpaceKb) {
+        long targetSpace = targetSpaceKb * 1000; //kbs to bytes
+
         while(fileSystem.getUsedStorage() > targetSpace) {
             Pair<String, Integer> toDelete = getMostSatisfiedChunk();
 
