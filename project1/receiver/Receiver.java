@@ -4,6 +4,7 @@ import message.Message;
 import utils.Utils;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;

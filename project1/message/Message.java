@@ -1,9 +1,11 @@
 package message;
 
+import java.io.Serializable;
+
 /**
  * The type Message.
  */
-public class Message implements Comparable {
+public class Message implements Comparable, Serializable {
     /**
      * The constant CRLF.
      */

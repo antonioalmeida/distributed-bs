@@ -14,6 +14,7 @@ import utils.Utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
@@ -22,22 +23,22 @@ import java.util.concurrent.*;
 /**
  * Created by antonioalmeida on 27/03/2018.
  */
-public class PeerController {
+public class PeerController implements Serializable {
 
     private String peerVersion;
     private int peerID;
 
-    private Dispatcher dispatcher;
+    private transient Dispatcher dispatcher;
 
-    private Receiver MCReceiver;
-    private Receiver MDBReceiver;
-    private Receiver MDRReceiver;
+    private transient Receiver MCReceiver;
+    private transient Receiver MDBReceiver;
+    private transient Receiver MDRReceiver;
 
     private FileSystem fileSystem;
 
     private boolean backupEnhancement;
 
-    private ScheduledExecutorService putchunkThreadPool = Executors.newScheduledThreadPool(50);
+    private transient ScheduledExecutorService putchunkThreadPool;
 
     // Stored chunks
     // < fileID, chunkIndex >
@@ -88,17 +89,6 @@ public class PeerController {
         this.peerVersion = peerVersion;
         this.peerID = peerID;
 
-        this.dispatcher = new Dispatcher(this, peerID);
-
-        // subscribe to multicast channels
-        try {
-            this.MCReceiver = new Receiver(MCAddress, MCPort, dispatcher);
-            this.MDBReceiver = new Receiver(MDBAddress, MDBPort, dispatcher);
-            this.MDRReceiver = new Receiver(MDRAddress, MDRPort, dispatcher);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         storedChunks = new ConcurrentHashMap<>();
         storedChunksInfo = new ConcurrentHashMap<>();
 
@@ -121,6 +111,23 @@ public class PeerController {
         storedRepliesInfo = new ConcurrentHashMap<>();
 
         fileSystem = new FileSystem(peerVersion, peerID, Globals.MAX_PEER_STORAGE, Globals.PEER_FILESYSTEM_DIR + "/" + peerID);
+
+        initTransientMethods(MCAddress, MCPort, MDBAddress, MDBPort, MDRAddress, MDRPort);
+    }
+
+    public void initTransientMethods(String MCAddress, int MCPort, String MDBAddress, int MDBPort, String MDRAddress, int MDRPort) {
+        this.dispatcher = new Dispatcher(this, peerID);
+
+        // subscribe to multicast channels
+        try {
+            this.MCReceiver = new Receiver(MCAddress, MCPort, dispatcher);
+            this.MDBReceiver = new Receiver(MDBAddress, MDBPort, dispatcher);
+            this.MDRReceiver = new Receiver(MDRAddress, MDRPort, dispatcher);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        putchunkThreadPool = Executors.newScheduledThreadPool(50);
     }
 
     /**

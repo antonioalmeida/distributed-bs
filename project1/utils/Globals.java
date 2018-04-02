@@ -40,6 +40,11 @@ public class Globals {
     public static int MAX_BACKUP_ENH_WAIT_TIME = 1000;
 
     /**
+     * Time between each peer information local saving (in seconds)
+     */
+    public static int PEER_CONTROLLER_SAVING_RATE = 3;
+
+    /**
      * The constant PEER_FILESYSTEM_DIR.
      */
     public static String PEER_FILESYSTEM_DIR = "peers";

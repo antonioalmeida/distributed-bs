@@ -1,11 +1,12 @@
 package message;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by antonioalmeida on 30/03/2018.
  */
-public class ChunkInfo implements Comparable<ChunkInfo> {
+public class ChunkInfo implements Comparable<ChunkInfo>, Serializable {
 
     private int desiredReplicationDegree;
     private int actualReplicationDegree;

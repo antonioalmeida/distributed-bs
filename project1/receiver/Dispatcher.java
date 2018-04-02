@@ -5,6 +5,7 @@ import peer.PeerController;
 import utils.Globals;
 import utils.Utils;
 
+import java.io.Serializable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;

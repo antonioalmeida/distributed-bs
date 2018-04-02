@@ -2,9 +2,9 @@ package storage;
 
 import message.ChunkMessage;
 import message.Message;
-import peer.Peer;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 /**
  * Created by antonioalmeida on 26/03/2018.
  */
-public class FileSystem {
+public class FileSystem implements Serializable {
 
     private static final String BACKUP_DIRECTORY = "backup";
     private static final String RESTORE_DIRECTORY = "restore";
