@@ -191,7 +191,7 @@ public class Peer implements RemoteService {
     @Override
     public void recoverFile(String filePath) throws RemoteException {
         //TODO: make proper verification
-        if(version != "1.0") {
+        if(!version.equals("1.0")) {
             System.out.println("Starting enhanced restore protocol");
             threadPool.submit(new SocketReceiver(MDRPort, controller.getDispatcher()));
         }

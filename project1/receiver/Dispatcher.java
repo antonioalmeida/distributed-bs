@@ -61,7 +61,7 @@ public class Dispatcher {
         switch(message.getType()) {
             case PUTCHUNK:
                 //TODO: make a proper verification
-                if(message.getVersion() != "1.0") {
+                if(!message.getVersion().equals("1.0")) {
                     controller.listenForStoreReplies(message.getFileID(), message.getChunkIndex());
                     randomWait = Utils.getRandomBetween(0, Globals.MAX_BACKUP_ENH_WAIT_TIME);
                 }

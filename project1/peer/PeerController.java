@@ -108,14 +108,14 @@ public class PeerController implements Serializable {
         getChunkRequestsInfo = new ConcurrentHashMap<>();
 
         //TODO: make proper verification
-        if(peerVersion != "1.0") {
+        if(peerVersion.equals("1.0")) {
+            backupEnhancement = false;
+            restoreEnhancement = false;
+        }
+        else {
             System.out.println("Enhancements activated");
             backupEnhancement = true;
             restoreEnhancement = true;
-        }
-        else {
-            backupEnhancement = false;
-            restoreEnhancement = false;
         }
         
         storedRepliesInfo = new ConcurrentHashMap<>();
@@ -154,7 +154,7 @@ public class PeerController implements Serializable {
         String fileID = message.getFileID();
         int chunkIndex = message.getChunkIndex();
 
-        if(backupEnhancement && message.getVersion() != "1.0") {
+        if(backupEnhancement && !message.getVersion().equals("1.0")) {
             Pair<String, Integer> key = new Pair<>(fileID, chunkIndex);
 
             if(storedRepliesInfo.containsKey(key)) {
@@ -231,7 +231,7 @@ public class PeerController implements Serializable {
             storedChunksInfo.put(key, chunkInfo);
         }
 
-        if(backupEnhancement && message.getVersion() != "1.0") {
+        if(backupEnhancement && !message.getVersion().equals("1.0")) {
             //if currently listening for this chunk's stored message, set found to true
             if(storedRepliesInfo.containsKey(key))
                 storedRepliesInfo.put(key, true);
@@ -271,7 +271,7 @@ public class PeerController implements Serializable {
 
         Message chunkMessage = fileSystem.retrieveChunk(fileID, chunkIndex);
 
-        if(restoreEnhancement && message.getVersion() != "1.0")
+        if(restoreEnhancement && !message.getVersion().equals("1.0"))
             TCPController.sendMessage(chunkMessage, sourceAddress);
         else
             MDRReceiver.sendWithRandomDelay(0, Globals.MAX_CHUNK_WAITING_TIME, chunkMessage);
