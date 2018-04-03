@@ -128,66 +128,70 @@ public class Message implements Comparable, Serializable {
         this.body = body;
     }
 
+    public byte[] buildMessagePacket(boolean sendBody) {
+        StringBuilder result = new StringBuilder();
+        switch(this.type){
+            case PUTCHUNK:
+                result.append("PUTCHUNK ");
+                break;
+            case STORED:
+                result.append("STORED ");
+                break;
+            case GETCHUNK:
+                result.append("GETCHUNK ");
+                break;
+            case CHUNK:
+                result.append("CHUNK ");
+                break;
+            case DELETE:
+                result.append("DELETE ");
+                break;
+            case REMOVED:
+                result.append("REMOVED ");
+                break;
+            default:
+                break;
+        }
+
+        result.append(this.version);
+        result.append(" ");
+        result.append(this.peerID);
+        result.append(" ");
+        result.append(this.fileID);
+        result.append(" ");
+        if(this.chunkNr != null) {
+            result.append(this.chunkNr);
+            result.append(" ");
+        }
+        if(this.repDegree != null) {
+            result.append(this.repDegree);
+            result.append(" ");
+        }
+        result.append(Message.CRLF+Message.CRLF);
+
+        String header = result.toString();
+        byte[] headerArr = header.getBytes();
+
+        int bodyLength;
+        if(this.body == null || !sendBody) bodyLength = 0;
+        else bodyLength = this.body.length;
+
+        byte[] packet = new byte[headerArr.length + bodyLength];
+        System.arraycopy(headerArr, 0, packet, 0, headerArr.length);
+
+        if(this.body != null)
+            System.arraycopy(this.body, 0, packet, header.length(), bodyLength);
+
+        return packet;
+    }
+
     /**
      * Build message packet byte.
      *
      * @return message as byte[]
      */
     public byte[] buildMessagePacket() {
-      StringBuilder result = new StringBuilder();
-      switch(this.type){
-          case PUTCHUNK:
-              result.append("PUTCHUNK ");
-              break;
-          case STORED:
-              result.append("STORED ");
-              break;
-          case GETCHUNK:
-              result.append("GETCHUNK ");
-              break;
-          case CHUNK:
-              result.append("CHUNK ");
-              break;
-          case DELETE:
-              result.append("DELETE ");
-              break;
-          case REMOVED:
-              result.append("REMOVED ");
-              break;
-          default:
-              break;
-      }
-
-      result.append(this.version);
-      result.append(" ");
-      result.append(this.peerID);
-      result.append(" ");
-      result.append(this.fileID);
-      result.append(" ");
-      if(this.chunkNr != null) {
-        result.append(this.chunkNr);
-        result.append(" ");
-      }
-      if(this.repDegree != null) {
-        result.append(this.repDegree);
-        result.append(" ");
-      }
-      result.append(Message.CRLF+Message.CRLF);
-
-      String header = result.toString();
-      byte[] headerArr = header.getBytes();
-
-      int bodyLength;
-      if(this.body == null) bodyLength = 0;
-      else bodyLength = this.body.length;
-
-      byte[] packet = new byte[headerArr.length + bodyLength];
-      System.arraycopy(headerArr, 0, packet, 0, headerArr.length);
-
-      if(this.body != null)
-          System.arraycopy(this.body, 0, packet, header.length(), bodyLength);
-
-      return packet;
+        return buildMessagePacket(true);
     }
 
     @Override
@@ -314,6 +318,21 @@ public class Message implements Comparable, Serializable {
       */
     public void setRepDegree(int degree) {
         this.repDegree = degree;
+    }
+
+    /**
+     * Sets the message body to null
+     */
+    public void deleteBody() {
+        body = new byte[0];
+    }
+
+    /**
+     * Checks if message body has body
+     * @return true if body size is greater than 0
+     */
+    public boolean hasBody() {
+        return body.length > 0;
     }
 
     /**

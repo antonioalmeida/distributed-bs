@@ -112,7 +112,7 @@ public class PeerController implements Serializable {
     /**
      * Useful information on files being restored by other peers. Key = fileID, Value = ArrayList of chunk numbers
      */
-    private ConcurrentHashMap<String, ArrayList<Integer>> getChunkRequestsInfo;
+    private ConcurrentHashMap<Pair<String, Integer>, Boolean> getChunkRequestsInfo;
 
     /**
      * Useful information about received STORED messages. Used in backup protocol enhancement. Key = <fileID, chunkInfo>, Value = Information (observed and desired rep degree)
@@ -304,12 +304,10 @@ public class PeerController implements Serializable {
         int chunkIndex = message.getChunkIndex();
 
         // if received a chunk message for this chunk meanwhile, return
-        if(getChunkRequestsInfo.containsKey(fileID)) {
-            ArrayList<Integer> chunkList = getChunkRequestsInfo.get(fileID);
-
-            if(chunkList.contains(chunkIndex)) {
-                chunkList.remove((Integer) chunkIndex);
-                getChunkRequestsInfo.put(fileID, chunkList);
+        Pair<String, Integer> key = new Pair<>(fileID, chunkIndex);
+        if(getChunkRequestsInfo.containsKey(key)) {
+            if(getChunkRequestsInfo.get(key)) {
+                getChunkRequestsInfo.remove(key);
                 System.out.println("Received a CHUNK message for " + chunkIndex + " meanwhile, ignoring request");
                 return;
             }
@@ -325,10 +323,14 @@ public class PeerController implements Serializable {
 
         Message chunkMessage = fileSystem.retrieveChunk(fileID, chunkIndex);
 
-        if(restoreEnhancement && !message.getVersion().equals("1.0"))
+        if(restoreEnhancement && !message.getVersion().equals("1.0")) {
+            //send chunk via tcp and send header to MDR
             TCPController.sendMessage(chunkMessage, sourceAddress);
+            MDRReceiver.sendMessage(chunkMessage, false);
+        }
         else
-            MDRReceiver.sendWithRandomDelay(0, Globals.MAX_CHUNK_WAITING_TIME, chunkMessage);
+            MDRReceiver.sendMessage(chunkMessage);
+
     }
 
     /**
@@ -342,21 +344,23 @@ public class PeerController implements Serializable {
         String fileID = message.getFileID();
         int chunkIndex = message.getChunkIndex();
 
-        if(getChunkRequestsInfo.containsKey(fileID)) {
-            ArrayList<Integer> chunkList = getChunkRequestsInfo.get(fileID);
-
-            if(!chunkList.contains((Integer) chunkIndex)) {
-                chunkList.add(chunkIndex);
-                getChunkRequestsInfo.put(fileID, chunkList);
-                System.out.println("Added Chunk " + chunkIndex + " to requests info.");
-            }
+        Pair<String, Integer> key = new Pair<>(fileID, chunkIndex);
+        if(getChunkRequestsInfo.containsKey(key)) {
+            getChunkRequestsInfo.put(key, true);
+            System.out.println("Added Chunk " + chunkIndex + " to requests info.");
         }
-        else
-            getChunkRequestsInfo.put(fileID, new ArrayList<>());
 
         // Not restoring this file
         if(!restoringFiles.containsKey(fileID))
             return;
+
+        // if an enhanced chunk message is sent via multicast
+        // channel, it only contains a header, don't restore
+        //TODO: this verification isn't right
+        if(!message.getVersion().equals("1.0") && !message.hasBody()) {
+            System.out.println("CHUNK " + message.getChunkIndex() + " has no body");
+            return;
+        }
 
         ConcurrentSkipListSet<Message> fileRestoredChunks = restoringFiles.get(fileID);
         fileRestoredChunks.add(message);
@@ -364,6 +368,7 @@ public class PeerController implements Serializable {
         restoringFiles.put(message.getFileID(), fileRestoredChunks);
 
         int fileChunkAmount = restoringFilesInfo.get(fileID).getValue();
+        System.out.println("Chunk ammout: " + fileChunkAmount);
 
         // stored all the file's chunks
         if(fileRestoredChunks.size() == fileChunkAmount) {
@@ -466,6 +471,11 @@ public class PeerController implements Serializable {
     public void listenForStoredReplies(Message chunk) {
         Pair<String, Integer> key = new Pair<>(chunk.getFileID(), chunk.getChunkIndex());
         storedRepliesInfo.putIfAbsent(key, new ChunkInfo(chunk.getRepDegree(), 0));
+    }
+
+    public void listenForChunkReplies(Message chunk) {
+        Pair<String, Integer> key = new Pair<>(chunk.getFileID(), chunk.getChunkIndex());
+        getChunkRequestsInfo.putIfAbsent(key, false);
     }
 
     /**

@@ -96,6 +96,21 @@ public class Receiver {
     }
 
     /**
+     * Sends a message through the socket.
+     *
+     * @param message the message to be sent
+     */
+    public void sendMessage(Message message, boolean sendBody) {
+        byte[] rbuf = message.buildMessagePacket(sendBody);
+
+        try {
+            this.socket.send(new DatagramPacket(rbuf, rbuf.length, address, port));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Sends a message with random delay.
      *
      * @param min     the min delay

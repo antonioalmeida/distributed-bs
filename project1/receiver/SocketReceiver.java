@@ -33,7 +33,7 @@ public class SocketReceiver implements Runnable {
         try {
             this.serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("ServerSocket already working, no need to open again");
         }
     }
 
@@ -80,7 +80,7 @@ public class SocketReceiver implements Runnable {
         Message message;
         while((message = (Message) stream.readObject()) != null) {
             dispatcher.handleMessage(message, null);
-            System.out.println("Read message from TCP");
+            System.out.println("Read message " + message.getChunkIndex() + " from TCP");
 
             try {
                 stream = new ObjectInputStream(socket.getInputStream());

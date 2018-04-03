@@ -88,6 +88,7 @@ public class Dispatcher {
                 });
                 break;
             case GETCHUNK:
+                controller.listenForChunkReplies(message);
                 randomWait = Utils.getRandomBetween(0, Globals.MAX_CHUNK_WAITING_TIME);
                 threadPool.schedule(() -> {
                     controller.handleGetChunkMessage(message, address);
