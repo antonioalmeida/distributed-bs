@@ -43,5 +43,5 @@ public interface RemoteService extends Remote {
      *
      * @throws RemoteException
      */
-    void retrieveState() throws RemoteException;
+    String retrieveState() throws RemoteException;
 }

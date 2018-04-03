@@ -5,7 +5,6 @@ import peer.PeerController;
 import utils.Globals;
 import utils.Utils;
 
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,7 +32,7 @@ public class Dispatcher {
     /**
       * Handles a message.
       *
-      * @param messagem message to be handled
+      * @param message message to be handled
       * @param address address used in getchunk message handling
       */
     public void handleMessage(Message message, InetAddress address) {
@@ -70,7 +69,6 @@ public class Dispatcher {
 
         switch(message.getType()) {
             case PUTCHUNK:
-                //TODO: make a proper verification
                 if(!message.getVersion().equals("1.0")) {
                     controller.listenForStoredReplies(message);
                     randomWait = Utils.getRandomBetween(0, Globals.MAX_BACKUP_ENH_WAIT_TIME);

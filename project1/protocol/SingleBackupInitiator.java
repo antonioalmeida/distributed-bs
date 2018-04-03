@@ -73,9 +73,7 @@ public class SingleBackupInitiator implements Runnable {
             e.printStackTrace();
         }
 
-        if(controller.getBackedUpChunkRepDegree(message) >= message.getRepDegree())
-            return true;
+        return controller.getBackedUpChunkRepDegree(message) >= message.getRepDegree();
 
-        return false;
     }
 }

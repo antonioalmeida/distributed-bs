@@ -1,10 +1,6 @@
 package receiver;
 
 import message.Message;
-import receiver.Receiver;
-
-import javax.net.ssl.SSLContext;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
@@ -80,7 +76,7 @@ public class SocketReceiver implements Runnable {
         Message message;
         while((message = (Message) stream.readObject()) != null) {
             dispatcher.handleMessage(message, null);
-            System.out.println("Read message " + message.getChunkIndex() + " from TCP");
+            System.out.println("Received CHUNK message " + message.getChunkIndex() + " via TCP");
 
             try {
                 stream = new ObjectInputStream(socket.getInputStream());

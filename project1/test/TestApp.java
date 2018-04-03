@@ -36,8 +36,7 @@ public class TestApp {
 
     public static boolean validArguments(String args[]) {
         if(args.length < 3) return false;
-        if(!args[1].equals("backup") && !args[1].equals("restore") && !args[1].equals("delete") && !args[1].equals("reclaim") && !args[1].equals("state")) return false;
-        return true;
+        return !(!args[1].equals("backup") && !args[1].equals("restore") && !args[1].equals("delete") && !args[1].equals("reclaim") && !args[1].equals("state"));
     }
 
     private TestApp(String[] args) throws RemoteException {
@@ -64,7 +63,7 @@ public class TestApp {
                 stub.reclaimSpace(extraArg);
                 break;
             case "state":
-                stub.retrieveState();
+                System.out.println(stub.retrieveState());
                 break;
         }
     }

@@ -7,8 +7,6 @@ public class ChunkInfo implements Comparable<ChunkInfo>, Serializable {
 
     private int desiredReplicationDegree;
     private int actualReplicationDegree;
-
-    // peers that are storing this chunk
     private ArrayList<Integer> peerList;
 
     /**
@@ -42,21 +40,21 @@ public class ChunkInfo implements Comparable<ChunkInfo>, Serializable {
     }
 
     /**
-     * Inc actual replication degree.
+     * Increment actual replication degree.
      */
     public void incActualReplicationDegree() {
         actualReplicationDegree++;
     }
 
     /**
-     * Dec actual replication degree.
+     * Decrement actual replication degree.
      */
     public void decActualReplicationDegree() {
         actualReplicationDegree--;
     }
 
     /**
-     * Gets degree satisfaction.
+     * Gets the chunk's degree satisfaction
      *
      * @return the degree satisfaction
      */

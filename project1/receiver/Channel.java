@@ -42,17 +42,6 @@ public class Channel {
     }
 
     /**
-     * Sends a message given as a string to the channel.
-     *
-     * @param message the message to be sent
-     * @throws IOException the io exception
-     */
-    public void sendMessage(String message) throws IOException {
-        byte[] rbuf = message.getBytes();
-        this.socket.send(new DatagramPacket(rbuf, rbuf.length, address, port));
-    }
-
-    /**
      * Sends a message encapsulated in a Message object to the channel
      *
      * @param message the message to be sent

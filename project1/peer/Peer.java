@@ -138,9 +138,7 @@ public class Peer implements RemoteService {
       */
     private static boolean checkArgs(final String args[]) {
         //TODO: add thorough args verification
-        if(args.length < 9)
-            return false;
-        return true;
+        return args.length >= 9;
     }
 
     /**
@@ -303,7 +301,7 @@ public class Peer implements RemoteService {
       * @throws RemoteException
       */
     @Override
-    public void retrieveState() throws RemoteException {
-        System.out.println(controller);
+    public String retrieveState() throws RemoteException {
+        return controller.toString();
     }
 }

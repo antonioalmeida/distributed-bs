@@ -4,32 +4,38 @@ import message.Message;
 import utils.Utils;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Receiver {
+
+    private static final int MAX_RECEIVER_SENDING_THREADS = 50;
 
     /**
      * The address.
      */
 
-    protected InetAddress address;
+    private InetAddress address;
     /**
      * The port.
      */
-    protected int port;
+    private int port;
 
     /**
      * The socket.
      */
-    protected MulticastSocket socket;
+    private MulticastSocket socket;
 
     /**
      * The Dispatcher.
      */
-    protected Dispatcher dispatcher;
+    private Dispatcher dispatcher;
+
+    private ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(MAX_RECEIVER_SENDING_THREADS);
 
     /**
      * Instantiates a new Receiver.
@@ -64,12 +70,10 @@ public class Receiver {
         new Thread(() -> {
             byte[] mbuf = new byte[65535];
 
-            int count = 0;
-            while(count < 10) {
+            while(true) {
                 DatagramPacket multicastPacket = new DatagramPacket(mbuf, mbuf.length);
 
                 try {
-                    //TODO: ignore messages sent by itself
                     this.socket.receive(multicastPacket);
                     this.dispatcher.handleMessage(multicastPacket.getData(), multicastPacket.getLength(), multicastPacket.getAddress());
                 } catch (IOException e) {
@@ -118,16 +122,9 @@ public class Receiver {
      * @param message the message to be sent
      */
     public void sendWithRandomDelay(int min, int max, Message message) {
-        int random = Utils.getRandomBetween(min, max);
-
-        try {
-            //TODO: remove Thread.sleep everywhere
-            Thread.sleep(random);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        sendMessage(message);
+        threadPool.schedule(() -> {
+            sendMessage(message);
+        }, Utils.getRandomBetween(min, max), TimeUnit.MILLISECONDS);
     }
 
 }

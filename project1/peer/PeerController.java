@@ -252,42 +252,40 @@ public class PeerController implements Serializable {
      */
     public void handleStoredMessage(Message message) {
         System.out.println("Received Stored Message: " + message.getChunkIndex());
-
         Pair<String, Integer> key = new Pair<>(message.getFileID(), message.getChunkIndex());
-        ChunkInfo chunkInfo;
-
-        // TODO: are the following ifs mutually exclusive? I think so
 
         // if this chunk is from a file the peer
         // has requested to backup (aka is the
         // initiator peer), and hasn't received
         // a stored message, update actual rep degree,
         // and add peer
-        if (backedUpChunksInfo.containsKey(key) && !backedUpChunksInfo.get(key).isBackedUpByPeer(message.getPeerID())) {
-            chunkInfo = backedUpChunksInfo.get(key);
-            chunkInfo.incActualReplicationDegree();
-            chunkInfo.addPeer(message.getPeerID());
-            backedUpChunksInfo.put(key, chunkInfo);
-        }
+        updateMapInformation(backedUpChunksInfo, key, message);
 
         // if this peer has this chunk stored,
         // and hasn't received stored message
         // from this peer yet, update actual
         // rep degree, and add peer
-        if(storedChunksInfo.containsKey(key) && !storedChunksInfo.get(key).isBackedUpByPeer(message.getPeerID())) {
-            chunkInfo = storedChunksInfo.get(key);
-            chunkInfo.incActualReplicationDegree();
-            chunkInfo.addPeer(message.getPeerID());
-            storedChunksInfo.put(key, chunkInfo);
-        }
+        updateMapInformation(storedChunksInfo, key, message);
 
         if(backupEnhancement && !message.getVersion().equals("1.0")) {
-            if(storedRepliesInfo.containsKey(key) && !storedRepliesInfo.get(key).isBackedUpByPeer(message.getPeerID())) {
-                chunkInfo = storedRepliesInfo.get(key);
-                chunkInfo.incActualReplicationDegree();
-                chunkInfo.addPeer(message.getPeerID());
-                storedRepliesInfo.put(key, chunkInfo);
-            }
+            updateMapInformation(storedRepliesInfo, key, message);
+        }
+    }
+
+    /**
+     * Updates a given ConcurrentHashMaps information at a given key
+     * @param map the map to update
+     * @param key the key whose value to update
+     * @param message the message whose information the map update is based on
+     */
+    private void updateMapInformation(ConcurrentHashMap<Pair<String, Integer>, ChunkInfo> map, Pair<String, Integer> key, Message message) {
+        ChunkInfo chunkInfo;
+
+        if(map.containsKey(key) && !map.get(key).isBackedUpByPeer(message.getPeerID())) {
+            chunkInfo = map.get(key);
+            chunkInfo.incActualReplicationDegree();
+            chunkInfo.addPeer(message.getPeerID());
+            map.put(key, chunkInfo);
         }
     }
 
@@ -368,7 +366,6 @@ public class PeerController implements Serializable {
         restoringFiles.put(message.getFileID(), fileRestoredChunks);
 
         int fileChunkAmount = restoringFilesInfo.get(fileID).getValue();
-        System.out.println("Chunk ammout: " + fileChunkAmount);
 
         // stored all the file's chunks
         if(fileRestoredChunks.size() == fileChunkAmount) {
@@ -468,11 +465,19 @@ public class PeerController implements Serializable {
         backedUpChunksInfo.putIfAbsent(key, new ChunkInfo(chunk.getRepDegree(), 0));
     }
 
+    /**
+     * Starts listening to stored messages for a chunk the peer is storing
+     * @param chunk
+     */
     public void listenForStoredReplies(Message chunk) {
         Pair<String, Integer> key = new Pair<>(chunk.getFileID(), chunk.getChunkIndex());
         storedRepliesInfo.putIfAbsent(key, new ChunkInfo(chunk.getRepDegree(), 0));
     }
 
+    /**
+     * Starts listening to generic stored messages
+     * @param chunk
+     */
     public void listenForChunkReplies(Message chunk) {
         Pair<String, Integer> key = new Pair<>(chunk.getFileID(), chunk.getChunkIndex());
         getChunkRequestsInfo.putIfAbsent(key, false);
