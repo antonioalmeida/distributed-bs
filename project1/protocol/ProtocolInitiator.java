@@ -35,17 +35,11 @@ public abstract class ProtocolInitiator implements Runnable {
      * Send a list of messages to the channel.
      *
      * @param messageList  the message list
-     * @param maxDelayTime the max delay time
      */
-    protected void sendMessages(ArrayList<Message> messageList, int maxDelayTime) {
-        try {
-            for(Message message : messageList) {
-                Thread.sleep(Utils.getRandomTime(maxDelayTime));
-                this.channel.sendMessage(message);
-                System.out.println("Sent " + message.getType() + " message: " + message.getChunkIndex());
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    protected void sendMessages(ArrayList<Message> messageList) {
+        for(Message message : messageList) {
+            this.channel.sendMessage(message);
+            System.out.println("Sent " + message.getType() + " message: " + message.getChunkIndex());
         }
     }
 

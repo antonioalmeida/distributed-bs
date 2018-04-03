@@ -355,10 +355,8 @@ public class PeerController implements Serializable {
         // if an enhanced chunk message is sent via multicast
         // channel, it only contains a header, don't restore
         //TODO: this verification isn't right
-        if(!message.getVersion().equals("1.0") && !message.hasBody()) {
-            System.out.println("CHUNK " + message.getChunkIndex() + " has no body");
+        if(!message.getVersion().equals("1.0") && !message.hasBody())
             return;
-        }
 
         ConcurrentSkipListSet<Message> fileRestoredChunks = restoringFiles.get(fileID);
         fileRestoredChunks.add(message);
@@ -367,7 +365,6 @@ public class PeerController implements Serializable {
 
         int fileChunkAmount = restoringFilesInfo.get(fileID).getValue();
 
-        // stored all the file's chunks
         if(fileRestoredChunks.size() == fileChunkAmount) {
             saveRestoredFile(fileID);
 

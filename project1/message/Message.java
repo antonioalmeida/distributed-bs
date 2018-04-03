@@ -79,17 +79,6 @@ public class Message implements Comparable, Serializable {
         this.chunkNr = Integer.parseInt(header[4]);
     }
 
-/*
-    //TODO: Remove? Not being used anywhere (I think)
-    public Message(String messageStr) {
-        //Should split into two elements: 0 = header, 1 = body (if present)
-        String[] messageComponents = messageStr.split("\\R\\R", 2);
-        if(messageComponents.length > 1)
-          this.body = messageComponents[1].getBytes();
-
-        processHeader(messageComponents[0]);
-    }
-*/
     /**
      * Processes a message given as a byte[] (directly from a DatagramPacket)
      *
@@ -130,28 +119,7 @@ public class Message implements Comparable, Serializable {
 
     public byte[] buildMessagePacket(boolean sendBody) {
         StringBuilder result = new StringBuilder();
-        switch(this.type){
-            case PUTCHUNK:
-                result.append("PUTCHUNK ");
-                break;
-            case STORED:
-                result.append("STORED ");
-                break;
-            case GETCHUNK:
-                result.append("GETCHUNK ");
-                break;
-            case CHUNK:
-                result.append("CHUNK ");
-                break;
-            case DELETE:
-                result.append("DELETE ");
-                break;
-            case REMOVED:
-                result.append("REMOVED ");
-                break;
-            default:
-                break;
-        }
+        result.append(parseType(this.type));
 
         result.append(this.version);
         result.append(" ");
@@ -197,28 +165,7 @@ public class Message implements Comparable, Serializable {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        switch(this.type){
-            case PUTCHUNK:
-                result.append("PUTCHUNK ");
-                break;
-            case STORED:
-                result.append("STORED ");
-                break;
-            case GETCHUNK:
-                result.append("GETCHUNK ");
-                break;
-            case CHUNK:
-                result.append("CHUNK ");
-                break;
-            case DELETE:
-                result.append("DELETE ");
-                break;
-            case REMOVED:
-                result.append("REMOVED ");
-                break;
-            default:
-                break;
-        }
+        result.append(parseType(this.type));
 
         result.append(this.version);
         result.append(" ");
@@ -239,6 +186,27 @@ public class Message implements Comparable, Serializable {
             result.append(new String(this.body));
 
         return result.toString();
+    }
+
+    private String parseType(MessageType type) {
+        switch(this.type){
+            case PUTCHUNK:
+                return "PUTCHUNK ";
+            case STORED:
+                return "STORED ";
+            case GETCHUNK:
+                return "GETCHUNK ";
+            case CHUNK:
+                return "CHUNK ";
+            case DELETE:
+                return "DELETE ";
+            case REMOVED:
+                return "REMOVED ";
+            default:
+                break;
+        }
+
+        return "NOT VALID";
     }
 
     /**
@@ -318,13 +286,6 @@ public class Message implements Comparable, Serializable {
       */
     public void setRepDegree(int degree) {
         this.repDegree = degree;
-    }
-
-    /**
-     * Sets the message body to null
-     */
-    public void deleteBody() {
-        body = new byte[0];
     }
 
     /**

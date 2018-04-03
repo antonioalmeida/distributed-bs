@@ -10,9 +10,6 @@ import java.util.ArrayList;
 
 public class BackupInitiator extends ProtocolInitiator {
 
-    //TODO: remove this
-    private static final int MAX_PUTCHUNK_DELAY_TIME = 0;
-
     private String filePath;
     private int replicationDegree;
 
@@ -49,7 +46,6 @@ public class BackupInitiator extends ProtocolInitiator {
             peer.getController().backedUpChunkListenForStored(chunk);
 
         do {
-            sendMessages(chunkList, MAX_PUTCHUNK_DELAY_TIME);
             tries++; waitTime *= 2;
             System.out.println("Sent " + filePath + " PUTCHUNK messages " + tries + " times");
 
@@ -57,6 +53,7 @@ public class BackupInitiator extends ProtocolInitiator {
                 System.out.println("Aborting backup, attempt limit reached");
                 return;
             }
+            sendMessages(chunkList);
         } while(!confirmStoredMessages(chunkList, waitTime));
 
         peer.getController().addBackedUpFile(filePath, fileID, chunkAmmount);

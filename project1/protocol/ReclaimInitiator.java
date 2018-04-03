@@ -23,8 +23,8 @@ public class ReclaimInitiator extends ProtocolInitiator {
     @Override
     public void run() {
         if(peer.getController().reclaimSpace(space))
-            System.out.println("Sucessfully reclaimed down to " + space + " bytes");
+            System.out.println("Successfully reclaimed down to " + space + " kB");
         else
-            System.out.println("Couldn't reclaim" + space + " bytes");
+            System.out.println("Couldn't reclaim down to " + space + " kB");
     }
 }

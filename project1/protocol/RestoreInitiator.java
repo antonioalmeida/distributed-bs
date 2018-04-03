@@ -5,13 +5,9 @@ import message.GetChunkMessage;
 import message.Message;
 import peer.Peer;
 
-import java.net.ServerSocket;
 import java.util.ArrayList;
 
 public class RestoreInitiator extends ProtocolInitiator {
-
-    // TODO: remove this
-    private static final int MAX_GETCHUNK_DELAY_TIME = 0;
 
     private String filePath;
 
@@ -52,6 +48,6 @@ public class RestoreInitiator extends ProtocolInitiator {
         peer.getController().addToRestoringFiles(fileID, filePath, chunkAmount);
         System.out.println("Restoring file with " + chunkAmount + " chunks");
 
-        sendMessages(getChunkList, MAX_GETCHUNK_DELAY_TIME);
+        sendMessages(getChunkList);
     }
 }
