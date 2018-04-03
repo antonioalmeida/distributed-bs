@@ -27,8 +27,17 @@ public class TestApp {
     private String name = null;
 
     public static void main(final String args[]) throws RemoteException {
-        //TODO: add input validation
+        if(!validArguments(args)) {
+          System.out.println("Invalid arguments: exiting...");
+          return;
+        }
         new TestApp(args);
+    }
+
+    public static boolean validArguments(String args[]) {
+        if(args.length < 3) return false;
+        if(!args[1].equals("backup") && !args[1].equals("restore") && !args[1].equals("delete") && !args[1].equals("reclaim") && !args[1].equals("state")) return false;
+        return true;
     }
 
     private TestApp(String[] args) throws RemoteException {
