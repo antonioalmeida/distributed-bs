@@ -1,0 +1,7 @@
+exclude:
+- /L01
+- /L02
+component_depth: 1
+languages:
+- java
+- javascript
