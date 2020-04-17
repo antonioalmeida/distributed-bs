@@ -1,7 +1,5 @@
 # distributed-bs
 
-Repository to host Distributed Systems' [SDIS] first project. Made with [@cyrilico](https://github.com/cyrilico).
-
 Work done for a subject in Distributed Systems [SDIS] in MIEIC @FEUP, in collaboration with [@cyrilico](https://github.com/cyrilico)
 
 ## Project: A Distributed Backup Service
